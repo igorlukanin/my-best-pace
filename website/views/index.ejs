@@ -8,7 +8,12 @@
 
 <body>
 
-my-best-pace-website
+<a href="/auth/strava">Connect with Strava</a>
+
+<% if (locals.user) { %>
+    <pre><%= JSON.stringify(user, null, 2) %></pre>
+    <pre><%= JSON.stringify(activities, null, 2) %></pre>
+<% } %>
 
 </body>
 
