@@ -1,0 +1,14 @@
+{
+  "name": "my-best-pace-website",
+  "version": "0.0.1",
+  "author": "Igor Lukanin",
+  "dependencies": {
+    "compression": "^1.6.0",
+    "config": "^1.16.0",
+    "ejs": "^2.3.4",
+    "express": "^4.13.3",
+    "html": "0.0.10",
+    "rethinkdb": "^2.1.1",
+    "strava-v3": "^1.8.1"
+  }
+}
