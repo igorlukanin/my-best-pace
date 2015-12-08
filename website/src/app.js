@@ -1,4 +1,5 @@
-var compression = require('compression'),
+var async       = require('async'),
+    compression = require('compression'),
     config      = require('config'),
     ejs         = require('ejs'),
     express     = require('express'),
@@ -32,10 +33,20 @@ express()
             strava.oauth.getToken(code, function(err, result) {
                 strava.athlete.listActivities({
                     'access_token': result.access_token
-                }, function(err, result2) {
-                    res.render('index', {
-                        user:       result.athlete,
-                        activities: result2
+                }, function(err, activities) {
+                    async.series(activities.map(function(activity) {
+                        return function(callback) {
+                            strava.activities.get({
+                                id: activity.id
+                            }, function(err, activity) {
+                                callback(null, activity);
+                            });
+                        };
+                    }), function(err, detailedActivities) {
+                        res.render('index', {
+                            user:       result.athlete,
+                            activities: detailedActivities
+                        });
                     });
                 });
             });
