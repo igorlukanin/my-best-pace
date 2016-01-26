@@ -1,4 +1,4 @@
-var db   = require('../db');
+var db   = require('../util/db');
 
 
 var createAthleteId = function(service, data, cb) {

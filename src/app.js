@@ -1,12 +1,8 @@
-var async       = require('async'),
-    compression = require('compression'),
+var compression = require('compression'),
     config      = require('config'),
     ejs         = require('ejs'),
     express     = require('express'),
-    moment      = require('moment'),
-    none        = require('moment-duration-format'),
 
-    activities  = require('../data/fake_activities.json'),
     controllers = require('./controllers'),
 
     port        = config.get('server.port');
@@ -16,13 +12,13 @@ process.on('uncaughtException', function(err) {
     console.error(err.stack);
 });
 
-var formatResult = function(effort) {
-    var distance = (effort.activity.distance / 1000).toFixed(1),
-        time     = moment.duration(effort.activity.time, "seconds").format("h:mm:ss"),
-        pace     = moment.duration(effort.time / effort.distance * 1000, "seconds").format("h:mm:ss");
-
-    return pace + ' (' + distance + 'km, ' + time + ')';
-};
+//var formatResult = function(effort) {
+//    var distance = (effort.activity.distance / 1000).toFixed(1),
+//        time     = moment.duration(effort.activity.time, "seconds").format("h:mm:ss"),
+//        pace     = moment.duration(effort.time / effort.distance * 1000, "seconds").format("h:mm:ss");
+//
+//    return pace + ' (' + distance + 'km, ' + time + ')';
+//};
 
 express()
     .use(express.static('public'))
