@@ -2,6 +2,7 @@
   <dictionary name="igorlukanin">
     <words>
       <w>strava</w>
+      <w>upsert</w>
     </words>
   </dictionary>
 </component>
