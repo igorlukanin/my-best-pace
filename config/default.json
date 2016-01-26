@@ -6,5 +6,8 @@
     "host": "localhost",
     "port": 28015,
     "db": "mybestpace"
+  },
+  "services": {
+    "initial_timestamp": 946684800
   }
 }

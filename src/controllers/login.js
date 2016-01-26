@@ -30,8 +30,7 @@ router.get('/strava/complete', function(req, res) {
             }
             else {
                 athletes.create(service, result, function(athleteId) {
-
-                    res.redirect('/athlete/' + athleteId);
+                    res.redirect('/athletes/' + athleteId);
                 });
             }
         });

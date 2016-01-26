@@ -100,5 +100,5 @@ express()
     .set('view engine', 'ejs')
 
     .listen(port, function() {
-        console.log("my-best-pace-website started at port " + port);
+        console.log("website started at port " + port);
     });
