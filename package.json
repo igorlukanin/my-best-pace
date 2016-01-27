@@ -4,7 +4,7 @@
   "author": "Igor Lukanin",
   "scripts": {
     "website": "node src/website.js",
-    "replenisher": "node src/replenisher.js"
+    "replenisher": "node src/replenisher-ctrl.js"
   },
   "dependencies": {
     "compression": "^1.6.0",
