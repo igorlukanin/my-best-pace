@@ -6,14 +6,12 @@ var router   = require('express').Router(),
 router.get('/:id', function(req, res) {
     var id = req.params.id;
 
-    athletes.select(id, function(err, athlete) {
+    athletes.getInfo(id, function(err, athleteInfo) {
         if (err) {
             res.render('errors/athlete');
         }
         else {
-            res.render('athlete', {
-                athlete: athlete
-            });
+            res.render('athlete', athleteInfo);
         }
     });
 });

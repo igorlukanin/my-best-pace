@@ -1,6 +1,7 @@
 var config           = require('config'),
     moment           = require('moment'),
 
+    athleteInfos     = require('../athlete-info'),
     db               = require('../../util/db'),
 
     initialTimestamp = config.get('services.initial_timestamp'),
@@ -37,9 +38,32 @@ var createAthlete = function(service, data, cb) {
     });
 };
 
-var getAthlete = function(id, cb) {
+var getAthleteInfo = function(id, cb) {
     db.c.then(function(c) {
-        db.athletes.get(id).run(c, cb);
+        db.athletes.get(id).run(c, function(err, athlete) {
+            if (err) {
+                cb(err);
+            }
+            else {
+                db.activities.filter({
+                    athlete_id: id
+                }).run(c, function(err, activities) {
+                    if (err) {
+                        cb(err);
+                    }
+                    else {
+                        activities.toArray(function(err, activitiesArray) {
+                            if (err) {
+                                cb(err);
+                            }
+                            else {
+                                cb(err, athleteInfos.create(athlete, activitiesArray));
+                            }
+                        });
+                    }
+                });
+            }
+        });
     });
 };
 
@@ -94,7 +118,7 @@ var updateAthleteActivities = function(athlete, cb) {
 
 module.exports = {
     create:           createAthlete,
-    select:           getAthlete,
+    getInfo:          getAthleteInfo,
     feedForUpdate:    feedAthletesToBeUpdated,
     updateActivities: updateAthleteActivities
 };
