@@ -4,6 +4,7 @@ var compression = require('compression'),
     express     = require('express'),
 
     controllers = require('./controllers'),
+    log         = require('./util/log'),
 
     port        = config.get('server.port');
 
@@ -100,5 +101,5 @@ express()
     .set('view engine', 'ejs')
 
     .listen(port, function() {
-        console.log("website started at port " + port);
+        log.appState('website', 'started at port ' + port);
     });

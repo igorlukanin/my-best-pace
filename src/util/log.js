@@ -10,6 +10,10 @@ var console = new debug({
 });
 
 
+var logAppState = function(app, message) {
+    console.info('Application ' + app + ': ' + message);
+};
+
 var logAthleteInfo = function(athlete, err, message) {
     if (message == undefined) {
         message = err;
@@ -26,5 +30,6 @@ var logAthleteInfo = function(athlete, err, message) {
 
 
 module.exports = {
+    appState:    logAppState,
     athleteInfo: logAthleteInfo
 };
