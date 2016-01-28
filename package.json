@@ -10,9 +10,9 @@
     "compression": "^1.6.0",
     "config": "^1.16.0",
     "console-debug": "^0.3.3",
-    "ejs": "^2.3.4",
+    "d3": "^3.5.14",
+    "ect": "^0.5.9",
     "express": "^4.13.3",
-    "html": "0.0.10",
     "moment": "^2.11.1",
     "rethinkdb": "^2.2.1",
     "strava-v3": "^1.8.1"
