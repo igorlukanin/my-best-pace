@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script src="/static/js/d3/d3.min.js"></script>
-</head>
-
-<body>
+<% extend 'layouts/default.ect' %>
 
 <a href="/login/strava">Connect with Strava</a>
 
@@ -15,7 +6,3 @@
     <pre><%= JSON.stringify(user, null, 2) %></pre>
     <pre><%= JSON.stringify(efforts, null, 2) %></pre>
 <% end %>
-
-</body>
-
-</html>
