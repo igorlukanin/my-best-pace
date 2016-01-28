@@ -4,7 +4,7 @@ var strava = require('strava-v3'),
 
 
 var getAthleteId = function(data) {
-    return data.athlete.getId;
+    return data.athlete.id;
 };
 
 var getNewAthleteActivities = function(athlete, afterTimestamp, cb) {
