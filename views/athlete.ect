@@ -124,7 +124,32 @@ Pace statistics:
                 .attr("y", 9)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
-                .text(function(d) { return d;})
-    });
+                .text(function(d) { return d;});
 
+
+
+
+
+        var dataR = data.map(function(activity) {
+            return [
+                activity.date,
+                activity.pace_m_km
+            ];
+        });
+
+
+        var result = regression('linear', dataR);
+
+        var reg_line = d3.svg.line()
+                .x(function(d, i) { return xScale(result.points[i][0]); })
+                .y(function(d, i) { return yScale(result.points[i][1]); });
+
+        svg.append('path')
+                .datum(dataR)
+                .attr('class','regression line')
+                .attr('d', reg_line)
+                .attr('stroke-width', 1)
+                .attr('stroke', 'black');
+
+    });
 </script>

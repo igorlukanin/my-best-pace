@@ -14,8 +14,9 @@ process.on('uncaughtException', function(err) {
 });
 
 express()
-    .use('/static', express.static('static'))
-    .use('/static/js/d3', express.static('node_modules/d3'))
+    .use('/static',               express.static('static'))
+    .use('/static/js/d3',         express.static('node_modules/d3'))
+    .use('/static/js/regression', express.static('node_modules/regression/src'))
 
     .use(compression())
     .use(controllers)

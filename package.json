@@ -14,6 +14,7 @@
     "ect": "^0.5.9",
     "express": "^4.13.3",
     "moment": "^2.11.1",
+    "regression": "^1.2.1",
     "rethinkdb": "^2.2.1",
     "strava-v3": "^1.8.1"
   }
