@@ -19,7 +19,7 @@ Pace statistics:
      */
 
     // setup x
-    var xValue = function(d) { return d.distance_km;}, // data -> value
+    var xValue = function(d) { return d.date;}, // data -> value
             xScale = d3.scale.linear().range([0, width]), // value -> display
             xMap = function(d) { return xScale(xValue(d));}, // data -> display
             xAxis = d3.svg.axis().scale(xScale).orient("bottom");
@@ -48,6 +48,10 @@ Pace statistics:
 
     // load data
     d3.json("/athletes/<%= @athlete.id %>/activities.json", function(error, data) {
+        data = data.filter(function(activity) {
+            return activity.distance_group == '8k (5m)';
+        });
+
         // don't want dots overlapping axis, so add in buffer to data domain
         xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
         yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
@@ -62,7 +66,7 @@ Pace statistics:
                 .attr("x", width)
                 .attr("y", -6)
                 .style("text-anchor", "end")
-                .text("Distance, km");
+                .text("Date");
 
         // y-axis
         svg.append("g")
@@ -74,7 +78,7 @@ Pace statistics:
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text("Pace, minutes per km");
+                .text("Pace, min/km");
 
         // draw dots
         svg.selectAll(".dot")
@@ -85,16 +89,16 @@ Pace statistics:
                 .attr("cx", xMap)
                 .attr("cy", yMap)
 //                .style("fill", function(d) { return color(cValue(d));})
-                /*.on("mouseover", function(d) {
+                .on("mouseover", function(d) {
                     tooltip.transition()
                             .duration(200)
                             .style("opacity", .9);
-                    tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d)
+                    tooltip.html(d.id + "<br/> (" + xValue(d)
                                     + ", " + yValue(d) + ")")
                             .style("left", (d3.event.pageX + 5) + "px")
                             .style("top", (d3.event.pageY - 28) + "px");
                 })
-                .on("mouseout", function(d) {
+                /*.on("mouseout", function(d) {
                     tooltip.transition()
                             .duration(500)
                             .style("opacity", 0);
