@@ -44,6 +44,12 @@ var getAthleteInfo = function(id, cb) {
             if (err) {
                 cb(err);
             }
+            else if (athlete == null) {
+                cb({
+                    athlete_id: id,
+                    message:    'Athlete not found'
+                });
+            }
             else {
                 db.activities.filter({
                     athlete_id: id
