@@ -1,8 +1,28 @@
 <% extend 'layouts/default.ect' %>
 
-<a href="/login/strava">Connect with Strava</a>
 
-<% if @user : %>
-    <pre><%= JSON.stringify(user, null, 2) %></pre>
-    <pre><%= JSON.stringify(efforts, null, 2) %></pre>
-<% end %>
+<div class="header">
+    <div class="header_title">What's your running pace?</div>
+    <div class="header_subtitle">Do you run slower or faster over time?</div>
+    <div class="header_cta">Connect with your favourite app to know:</div>
+</div>
+
+<div class="login grid">
+    <div class="login_block login_block__strava col-1-4">
+        <a class="login_link" href="/login/strava">
+            <span class="login_link_filler">Strava</span>
+        </a>
+    </div>
+    <div class="login_block login_block__runkeeper login_block__coming_soon col-1-4">
+        <a class="login_link login_link__coming_soon">Runkeeper</a>
+        <div class="login_note">Coming soon</div>
+    </div>
+    <div class="login_block login_block__nikeplus login_block__coming_soon col-1-4">
+        <a class="login_link login_link__coming_soon">Nike+</a>
+        <div class="login_note">Coming soon</div>
+    </div>
+    <div class="login_block login_block__garmin login_block__coming_soon col-1-4">
+        <a class="login_link login_link__coming_soon">Garmin</a>
+        <div class="login_note">Coming soon</div>
+    </div>
+</div>
