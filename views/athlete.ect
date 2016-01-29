@@ -1,5 +1,29 @@
 <% extend 'layouts/default.ect' %>
 
+<div class="athlete grid">
+    <div class="athlete_avatar col-1-5 push-1-5">
+        <img class="athlete_avatar_image" src="<%= @athlete.avatar_url %>"/>
+    </div>
+    <div class="athlete_info col-2-5">
+        <%= @athlete.name %>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 Athlete:
 <pre><%= JSON.stringify(@athlete, null, 2) %></pre>
 

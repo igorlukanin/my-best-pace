@@ -3,7 +3,9 @@ var moment = require('moment');
 
 var extractAthleteData = function(athlete) {
     return {
-        id: athlete.id
+        id:         athlete.id,
+        name:       athlete.data.athlete.firstname + ' ' + athlete.data.athlete.lastname,
+        avatar_url: athlete.data.athlete.profile
     };
 };
 

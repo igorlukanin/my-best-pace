@@ -110,6 +110,22 @@ body {
     color: #444;
 }
 
-.footer_link__github {
+.athlete {
 
+}
+
+.athlete_avatar {
+
+}
+
+.athlete_avatar_image {
+    border-color: #666;
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.athlete_info {
+    font-size: 32pt;
+    line-height: 126px;
 }
