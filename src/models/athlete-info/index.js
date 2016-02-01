@@ -17,7 +17,7 @@ var calculateActivityDistanceGroup = function(activity) {
            activity.distance_km >= 13.0 && activity.distance_km <  18.5 ? '16k (10m)' :
            activity.distance_km >= 18.5 && activity.distance_km <  23.7 ? '21k (HM)' :
            activity.distance_km >= 23.7 && activity.distance_km <  38.6 ? 'HM-M' :
-           activity.distance_km >= 38.6 && activity.distance_km <  44.8 ? '42k (M)' : 'M+';
+           activity.distance_km >= 38.6 && activity.distance_km <  44.8 ? '42k (M)' : 'UM';
 };
 
 var extractActivitiesData = function(athlete, activities) {
