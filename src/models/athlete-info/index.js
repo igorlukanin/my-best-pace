@@ -1,6 +1,7 @@
 var helpers = {
-        strava: require('./strava')
-    };
+    strava: require('./strava'),
+    runkeeper: require('./runkeeper')
+};
 
 
 var extractAthleteData = function(athlete) {

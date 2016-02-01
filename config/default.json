@@ -13,5 +13,10 @@
   "replenisher-ctrl": {
     "restart_interval_ms": 900000,
     "restart_interval_ms_description": "15 minutes"
+  },
+  "runkeeper": {
+    "client_id": "",
+    "client_secret": "",
+    "redirect_uri": "http://localhost:3000/login/runkeeper/complete"
   }
 }

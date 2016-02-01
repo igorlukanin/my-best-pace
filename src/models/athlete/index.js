@@ -7,7 +7,8 @@ var config           = require('config'),
     initialTimestamp = config.get('services.initial_timestamp'),
 
     helpers = {
-        strava: require('./strava')
+        strava:    require('./strava'),
+        runkeeper: require('./runkeeper')
     };
 
 
