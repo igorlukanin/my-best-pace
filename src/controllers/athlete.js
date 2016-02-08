@@ -9,7 +9,9 @@ router.get('/:id', function(req, res) {
     athletes
         .load(id)
         .then(function(athleteInfo) {
-            res.render('athlete', athleteInfo);
+            res.render('athlete', {
+                athlete: athleteInfo
+            });
         }, function(err) {
             res.render('errors/athlete');
         });
