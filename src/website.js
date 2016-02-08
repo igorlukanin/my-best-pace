@@ -1,12 +1,12 @@
 var compression = require('compression'),
-    config      = require('config'),
-    ect         = require('ect'),
-    express     = require('express'),
+    config = require('config'),
+    ect = require('ect'),
+    express = require('express'),
 
     controllers = require('./controllers'),
-    log         = require('./util/log'),
+    log = require('./util/log'),
 
-    port        = config.get('server.port');
+    port = config.get('server.port');
 
 
 process.on('uncaughtException', function(err) {

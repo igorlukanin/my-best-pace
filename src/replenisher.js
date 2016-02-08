@@ -8,11 +8,15 @@ process.on('uncaughtException', function(err) {
 
 log.appState('replenisher', 'started');
 
-athletes.feedForUpdate(function(err, result) {
-    // It's safe to ignore 'err' here
-    var athlete = result.new_val;
+athletes
+    .feedForUpdate()
+    .then(function(cursor) {
+        cursor.each(function(err, result) {
+            var athleteInfo = result.new_val;
+            log.athleteInfo(athleteInfo, 'updating activities...');
 
-    log.athleteInfo(athlete, 'updating activities...');
-
-    athletes.updateActivities(athlete);
-});
+            athletes.updateActivities(athleteInfo);
+        });
+    }, function(err) {
+        console.error(err);
+    });
