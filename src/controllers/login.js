@@ -1,7 +1,8 @@
-var router   = require('express').Router(),
-    strava   = require('strava-v3'),
+var router    = require('express').Router(),
 
-    athletes = require('../models/athlete');
+    athletes  = require('../models/athlete'),
+    runkeeper = require('../util/api/runkeeper'),
+    strava    = require('../util/api/strava');
 
 
 var handleLoginError = function(res, service) {
@@ -10,30 +11,55 @@ var handleLoginError = function(res, service) {
     });
 };
 
-router.get('/strava', function(req, res) {
-    res.redirect(strava.oauth.getRequestAccessURL({
-        scope: 'public'
-    }));
+router.get('/runkeeper', function(req, res) {
+    res.redirect(runkeeper.getOAuthRedirectUrl());
 });
 
-router.get('/strava/complete', function(req, res) {
-    var service = 'strava',
-        code    = req.query.code;
+router.get('/runkeeper/complete', function(req, res) {
+    var code = req.query.code,
+        service = 'runkeeper';
 
     if (!code) {
         handleLoginError(res, service);
     }
     else {
-        strava.oauth.getToken(code, function(err, result) {
-            if (err) {
-                handleLoginError(res, service);
-            }
-            else {
-                athletes.create(service, result, function(athleteId) {
-                    res.redirect('/athletes/' + athleteId);
-                });
-            }
-        });
+        runkeeper
+            .loadOAuthAccessToken(code)
+            .then(runkeeper.loadAthleteInfo)
+            .then(athletes.create)
+            .then(function(athleteId) {
+                res.redirect('/athletes/' + athleteId);
+            }, function(err) {
+                handleLoginError(err, service);
+            });
+    }
+});
+
+router.get('/runkeeper/disconnect', function(req, res) {
+    // TODO: Implement
+});
+
+router.get('/strava', function(req, res) {
+    res.redirect(strava.getOAuthRedirectUrl());
+});
+
+router.get('/strava/complete', function(req, res) {
+    var code = req.query.code,
+        service = 'strava';
+
+    if (!code) {
+        handleLoginError(res, service);
+    }
+    else {
+        strava
+            .loadOAuthAccessToken(code)
+            .then(strava.loadAthleteInfo)
+            .then(athletes.create)
+            .then(function(athleteId) {
+                res.redirect('/athletes/' + athleteId);
+            }, function(err) {
+                handleLoginError(err, service);
+            });
     }
 });
 
