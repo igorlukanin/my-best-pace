@@ -7,9 +7,6 @@
     "port": 28015,
     "db": "mybestpace"
   },
-  "services": {
-    "initial_timestamp": 946684800
-  },
   "replenisher-ctrl": {
     "restart_interval_ms": 900000,
     "restart_interval_ms_description": "15 minutes"
@@ -18,5 +15,12 @@
     "client_id": "",
     "client_secret": "",
     "redirect_uri": "http://localhost:3000/login/runkeeper/complete"
+  },
+  "strava": {
+    "client_id": 0,
+    "client_secret": "",
+    "access_token": "",
+    "redirect_uri": "http://localhost:3000/login/strava/complete",
+    "earliest_activity_timestamp": 946684800
   }
 }

@@ -3,19 +3,26 @@
   "version": "0.0.1",
   "author": "Igor Lukanin",
   "scripts": {
-    "website": "node src/website.js",
-    "replenisher": "node src/replenisher-ctrl.js"
+    "website": "NODE_ENV=production node src/website.js",
+    "replenisher": "NODE_ENV=production node src/replenisher-ctrl.js",
+    "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --recursive ./test/"
   },
   "dependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
     "compression": "^1.6.0",
     "config": "^1.16.0",
     "console-debug": "^0.3.3",
     "d3": "^3.5.14",
     "ect": "^0.5.9",
     "express": "^4.13.3",
+    "mocha": "^2.4.5",
     "moment": "^2.11.1",
+    "promise": "^7.1.1",
     "regression": "^1.2.1",
     "rethinkdb": "^2.2.1",
-    "strava-v3": "^1.8.1"
+    "runkeeper-js": "^1.0.0",
+    "strava-v3": "^1.8.1",
+    "traceback": "^0.3.1"
   }
 }
