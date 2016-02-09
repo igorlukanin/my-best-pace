@@ -103,7 +103,7 @@ var calculateData = function(athlete, activities) {
         }
     }
 
-    activities = activities.map(function(activity, i) {
+    activities = activities.map(function(activity) {
         activity.date_group = calculateDateGroup(activity, dateStats);
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
@@ -113,11 +113,13 @@ var calculateData = function(athlete, activities) {
 
         if (distanceCell.date_groups[activity.date_group] == undefined) {
             distanceCell.date_groups[activity.date_group] = {
+                min_pace: 0,
+                max_pace: 0,
                 activities: []
             };
         }
 
-        distanceCell.date_groups[activity.date_group].activities.push(i);
+        distanceCell.date_groups[activity.date_group].activities.push(activity);
 
         delete activity.raw_data;
         return activity;
@@ -127,9 +129,27 @@ var calculateData = function(athlete, activities) {
 
     for (name in distanceGroups) {
         if (distanceGroups.hasOwnProperty(name)) {
-            distanceStats.distance_groups[name].relevant = distanceStats.distance_groups[name].count >= minimumActivityCountPerDistance;
-            distanceStats.distance_groups[name].ratio = distanceStats.distance_groups[name].count / activities.length;
-            distanceRatios.push([ name, distanceStats.distance_groups[name].ratio ]);
+            distanceCell = distanceStats.distance_groups[name];
+
+            distanceCell.relevant = distanceCell.count >= minimumActivityCountPerDistance;
+            distanceCell.ratio = distanceCell.count / activities.length;
+            distanceRatios.push([ name, distanceCell.ratio ]);
+
+            for (var date in distanceCell.date_groups) {
+                if (distanceCell.date_groups.hasOwnProperty(date)) {
+                    var dateCell = distanceCell.date_groups[date];
+
+                    dateCell.min_pace = dateCell.activities.reduce(function(previous, current) {
+                        return previous ? Math.min(previous, current.pace_m_km) : current.pace_m_km;
+                    }, 0);
+
+                    dateCell.max_pace = dateCell.activities.reduce(function(previous, current) {
+                        return previous ? Math.max(previous, current.pace_m_km) : current.pace_m_km;
+                    }, 0);
+                }
+
+                delete dateCell.activities;
+            }
         }
     }
 
@@ -141,8 +161,7 @@ var calculateData = function(athlete, activities) {
 
     return {
         date_stats: dateStats,
-        distance_stats: distanceStats,
-        activities: activities
+        distance_stats: distanceStats
     };
 };
 
