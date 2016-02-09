@@ -13,6 +13,11 @@ process.on('uncaughtException', function(err) {
     console.error(err.stack);
 });
 
+require('promise/lib/rejection-tracking').enable({
+    allRejections: true
+});
+
+
 express()
     .use('/static',               express.static('static'))
     .use('/static/js/d3',         express.static('node_modules/d3'))

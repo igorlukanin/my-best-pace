@@ -10,6 +10,11 @@ process.on('uncaughtException', function(err) {
     console.error(err.stack);
 });
 
+require('promise/lib/rejection-tracking').enable({
+    allRejections: true
+});
+
+
 var children = [];
 
 var restartChild = function() {
