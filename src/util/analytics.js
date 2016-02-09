@@ -1,6 +1,4 @@
-var fs = require('fs'),
-
-    distanceGroups = {
+var distanceGroups = {
         '0k': [0.0, 0.5],
         '1k': [0.5, 2.0],
         '3k': [2.0, 4.0],
@@ -12,6 +10,11 @@ var fs = require('fs'),
         '30k': [23.7, 38.6],
         '42k': [38.6, 44.8],
         '00k': [44.8, Infinity]
+    },
+    periodsPerYearCounts = {
+        '0y': [0.0, 0.5, 12], // 12 per year
+        '1y': [0.5, 1.5, 6], // 6 per year
+        '00y': [1.5, Infinity, 4] // 4 per year
     };
 
 
@@ -62,10 +65,31 @@ var calculatePace = function(activity) {
 };
 
 
+var calculateDateGroup = function(activity, stats) {
+    var position = Math.floor((activity.start_timestamp - stats.min_timestamp) / stats.period);
+    return Math.floor(stats.min_timestamp + stats.period * (0.5 + position));
+};
+
+
+var calculateDatePeriodsCount = function(years) {
+    for (var name in periodsPerYearCounts) {
+        if (periodsPerYearCounts.hasOwnProperty(name) &&
+            periodsPerYearCounts[name][0] <= years &&
+            periodsPerYearCounts[name][1] > years
+        ) {
+            return Math.ceil(periodsPerYearCounts[name][2] * years);
+        }
+    }
+};
+
+
 var calculateDateStats = function(activities) {
     var stats = {
         min_timestamp: 0,
-        max_timestamp: 0
+        max_timestamp: 0,
+        delta_years: 0,
+        periods_count: 0,
+        period: 0
     };
 
     if (activities.length == 0) {
@@ -81,6 +105,10 @@ var calculateDateStats = function(activities) {
         stats.min_timestamp = Math.min(stats.min_timestamp, activity.start_timestamp);
         stats.max_timestamp = Math.max(stats.max_timestamp, activity.start_timestamp);
     });
+
+    stats.delta_years = (stats.max_timestamp - stats.min_timestamp) / (60 * 60 * 24 * 365);
+    stats.periods_count = calculateDatePeriodsCount(stats.delta_years);
+    stats.period = (stats.max_timestamp - stats.min_timestamp) / stats.periods_count;
 
     return stats;
 };
@@ -110,9 +138,10 @@ var calculateMostFrequentStats = function(distanceGroupStats) {
 
 
 var calculateData = function(athlete, activities) {
-    fs.writeFileSync('./test/util/analytics-activities.json', JSON.stringify(activities, null, 2));
+    var dateStats = calculateDateStats(activities);
 
     activities = activities.map(function(activity) {
+        activity.date_group = calculateDateGroup(activity, dateStats);
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
 
@@ -125,7 +154,7 @@ var calculateData = function(athlete, activities) {
 
     return {
         distance_group_stats: distanceGroupStats,
-        date_stats: calculateDateStats(activities),
+        date_stats: dateStats,
         most_frequent_stats: calculateMostFrequentStats(distanceGroupStats),
         activities: activities
     };
@@ -138,6 +167,7 @@ module.exports = {
     // For testing:
     calculateDistanceGroup: calculateDistanceGroup,
     calculateDistanceGroupStats: calculateDistanceGroupStats,
+    calculateDateGroup: calculateDateGroup,
     calculateDateStats: calculateDateStats,
     calculatePace: calculatePace,
     calculateMostFrequentDistanceGroupStats: calculateMostFrequentDistanceGroupStats
