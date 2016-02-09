@@ -62,6 +62,30 @@ var calculatePace = function(activity) {
 };
 
 
+var calculateDateStats = function(activities) {
+    var stats = {
+        min_timestamp: 0,
+        max_timestamp: 0
+    };
+
+    if (activities.length == 0) {
+        return stats;
+    }
+
+    activities.forEach(function(activity) {
+        if (stats.min_timestamp == 0 || stats.max_timestamp == 0) {
+            stats.min_timestamp = activity.start_timestamp;
+            stats.max_timestamp = activity.start_timestamp;
+        }
+
+        stats.min_timestamp = Math.min(stats.min_timestamp, activity.start_timestamp);
+        stats.max_timestamp = Math.max(stats.max_timestamp, activity.start_timestamp);
+    });
+
+    return stats;
+};
+
+
 var calculateMostFrequentDistanceGroupStats = function(distanceGroupStats) {
     var distanceGroupStatsArray = [];
 
@@ -101,6 +125,7 @@ var calculateData = function(athlete, activities) {
 
     return {
         distance_group_stats: distanceGroupStats,
+        date_stats: calculateDateStats(activities),
         most_frequent_stats: calculateMostFrequentStats(distanceGroupStats),
         activities: activities
     };
@@ -113,6 +138,7 @@ module.exports = {
     // For testing:
     calculateDistanceGroup: calculateDistanceGroup,
     calculateDistanceGroupStats: calculateDistanceGroupStats,
+    calculateDateStats: calculateDateStats,
     calculatePace: calculatePace,
     calculateMostFrequentDistanceGroupStats: calculateMostFrequentDistanceGroupStats
 };

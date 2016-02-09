@@ -5,15 +5,6 @@ var util = require('../util'),
 
 
 describe(util.path(), function() {
-    var athleteInfo = {},
-        activityInfos = require('./analytics-activities.json');
-
-    describe('calculate', function() {
-        //it('should be resolved', function() {
-        //    return expect(athleteId).to.be.fulfilled;
-        //});
-    });
-
     describe('calculateDistanceGroup', function() {
         var activities = [{
             distance_km: 0.4,
@@ -109,6 +100,28 @@ describe(util.path(), function() {
             });
 
             expect(actual).to.be.within(4.7, 4.8);
+        });
+    });
+
+    describe('calculateDateStats', function() {
+        it('should be correct', function() {
+            var actual = analytics.calculateDateStats([
+                { start_timestamp: 1234 },
+                { start_timestamp: 4567 },
+                { start_timestamp: 6789 }
+            ]);
+
+            expect(actual).to.be.an('object');
+            expect(actual.min_timestamp).to.equal(1234);
+            expect(actual.max_timestamp).to.equal(6789);
+        });
+
+        it('should be zero if there are no activities', function() {
+            var actual = analytics.calculateDateStats([]);
+
+            expect(actual).to.be.an('object');
+            expect(actual.min_timestamp).to.equal(0);
+            expect(actual.max_timestamp).to.equal(0);
         });
     });
 });
