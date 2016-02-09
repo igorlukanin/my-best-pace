@@ -27,3 +27,7 @@
         <div class="login_note">Coming soon</div>
     </div>
 </div>
+
+<% for athlete in @athletes : %>
+<p><a href="/athletes/<%= athlete.id %>"><%= athlete.full_name %> @ <%= athlete.service %></a></p>
+<% end %>
