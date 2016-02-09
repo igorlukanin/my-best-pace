@@ -57,6 +57,29 @@ var calculateDistanceGroupStats = function(activities) {
 };
 
 
+var calculateMostFrequentDistanceGroupStats = function(distanceGroupStats) {
+    var distanceGroupStatsArray = [];
+
+    for (name in distanceGroupStats) {
+        if (distanceGroupStats.hasOwnProperty(name) && distanceGroupStats[name].ratio > 0) {
+            distanceGroupStatsArray.push([ name, distanceGroupStats[name].ratio ]);
+        }
+    }
+
+    return distanceGroupStatsArray
+        .sort(function(a, b) { return a[1] - b[1]; })
+        .slice(-3)
+        .map(function(a) { return a[0]; });
+};
+
+
+var calculateMostFrequentStats = function(distanceGroupStats) {
+    return {
+        distance_groups: calculateMostFrequentDistanceGroupStats(distanceGroupStats)
+    };
+};
+
+
 var calculateData = function(athlete, activities) {
     fs.writeFileSync('./test/util/analytics-activities.json', JSON.stringify(activities, null, 2));
 
@@ -66,18 +89,23 @@ var calculateData = function(athlete, activities) {
         return activity;
     });
 
+    var distanceGroupStats = calculateDistanceGroupStats(activities);
+
     return {
-        //activities: activities,
-        distance_group_stats: calculateDistanceGroupStats(activities),
+        distance_group_stats: distanceGroupStats,
+        most_frequent_stats: calculateMostFrequentStats(distanceGroupStats),
         "todo": "add more data"
     };
 };
 
 
 module.exports = {
+    calculate: calculateData,
+
+    // For testing:
     calculateDistanceGroup: calculateDistanceGroup,
     calculateDistanceGroupStats: calculateDistanceGroupStats,
-    calculate: calculateData
+    calculateMostFrequentDistanceGroupStats: calculateMostFrequentDistanceGroupStats
 };
 
 

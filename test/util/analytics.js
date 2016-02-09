@@ -78,4 +78,26 @@ describe(util.path(), function() {
             expect(actual['21k'].ratio).to.be.equal(0.25);
         });
     });
+
+    describe('calculateMostFrequentDistanceGroupStats', function() {
+        it('should be correct', function() {
+            var actual = analytics.calculateMostFrequentDistanceGroupStats({
+                '0k': { ratio: 0.06 },
+                '1k': { ratio: 0.03 },
+                '3k': { ratio: 0.09 },
+                '5k': { ratio: 0.23 },
+                '8k': { ratio: 0.29 },
+                '10k': { ratio: 0.19 },
+                '16k': { ratio: 0.08 },
+                '21k': { ratio: 0.04 },
+                '30k': { ratio: 0.01 },
+                '42k': { ratio: 0 },
+                '00k': { ratio: 0 }
+            });
+
+            expect(actual).to.be.an('array');
+            expect(actual.length).to.be.equal(3);
+            expect(actual).to.have.members([ '5k', '8k', '10k' ]);
+        });
+    });
 });
