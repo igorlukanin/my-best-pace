@@ -99,6 +99,12 @@ var calculateUpperTimestamp = function(lowerTimestamp, activityInfos) {
 };
 
 
+var filterActivityInfo = function(data) {
+    return data.type == 'Run'
+        && data.manual == false;
+};
+
+
 var extractActivityInfo = function(data) {
     return {
         service: name,
@@ -123,9 +129,13 @@ var loadNewActivitiesAndUpdateAthlete = function(athleteInfo) {
                 latestTimestamp = calculateUpperTimestamp(latestTimestamp, activityInfos);
                 athleteInfo.activities_update_timestamp = latestTimestamp;
 
+                activityInfos = activityInfos
+                    .filter(filterActivityInfo)
+                    .map(extractActivityInfo);
+
                 resolve({
                     athleteInfo: athleteInfo,
-                    activityInfos: activityInfos.map(extractActivityInfo)
+                    activityInfos: activityInfos
                 });
             }
         });
@@ -147,10 +157,7 @@ module.exports = {
 //// Strava excludes resting time from moving_time so it's more accurate
 //// See http://blog.strava.com/run-activity-page-updates-and-improvements-6500/
 //var extractActivitiesData = function(activities) {
-//    return activities.filter(function(activity) {
-//        return activity.data.type == 'Run'
-//            && activity.data.manual == false;
-//    }).map(function(activity) {
+//    return activities.map(function(activity) {
 //        return {
 //            id:          activity.id,
 //            distance_km: activity.data.distance / 1000,
