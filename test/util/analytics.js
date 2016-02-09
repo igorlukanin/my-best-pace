@@ -29,69 +29,6 @@ describe(util.path(), function() {
         });
     });
 
-    describe('calculateDistanceGroupStats', function() {
-        var distanceGroupNames = [ '0k', '1k', '3k', '5k', '8k', '10k', '16k', '21k', '30k', '42k', '00k' ];
-
-        it('should have all distance groups', function() {
-            var actual = analytics.calculateDistanceGroupStats([]);
-
-            distanceGroupNames.forEach(function(name) {
-                expect(actual[name]).to.be.ok;
-            });
-        });
-
-        it('should have zero counts and ratios if there are no activities', function() {
-            var actual = analytics.calculateDistanceGroupStats([]);
-
-            expect(actual['10k']).to.be.ok;
-            expect(actual['10k'].count).to.be.equal(0);
-            expect(actual['10k'].ratio).to.be.equal(0);
-        });
-
-        it('should have correct count and ratio', function() {
-            var actual = analytics.calculateDistanceGroupStats([
-                { distance_group: '8k' },
-                { distance_group: '8k' },
-                { distance_group: '8k' },
-                { distance_group: '21k' }
-            ]);
-
-            expect(actual['8k']).to.be.ok;
-            expect(actual['10k']).to.be.ok;
-            expect(actual['21k']).to.be.ok;
-
-            expect(actual['8k'].count).to.be.equal(3);
-            expect(actual['10k'].count).to.be.equal(0);
-            expect(actual['21k'].count).to.be.equal(1);
-
-            expect(actual['8k'].ratio).to.be.equal(0.75);
-            expect(actual['10k'].ratio).to.be.equal(0);
-            expect(actual['21k'].ratio).to.be.equal(0.25);
-        });
-    });
-
-    describe('calculateMostFrequentDistanceGroupStats', function() {
-        it('should be correct', function() {
-            var actual = analytics.calculateMostFrequentDistanceGroupStats({
-                '0k': { ratio: 0.06 },
-                '1k': { ratio: 0.03 },
-                '3k': { ratio: 0.09 },
-                '5k': { ratio: 0.23 },
-                '8k': { ratio: 0.29 },
-                '10k': { ratio: 0.19 },
-                '16k': { ratio: 0.08 },
-                '21k': { ratio: 0.04 },
-                '30k': { ratio: 0.01 },
-                '42k': { ratio: 0 },
-                '00k': { ratio: 0 }
-            });
-
-            expect(actual).to.be.an('array');
-            expect(actual.length).to.be.equal(3);
-            expect(actual).to.have.members([ '5k', '8k', '10k' ]);
-        });
-    });
-
     describe('calculatePace', function() {
         it('should be correct', function() {
             var actual = analytics.calculatePace({

@@ -15,60 +15,8 @@ var distanceGroups = {
         '0y': [0.0, 0.5, 12], // 12 per year
         '1y': [0.5, 1.5, 6], // 6 per year
         '00y': [1.5, Infinity, 4] // 4 per year
-    };
-
-
-var calculateDistanceGroup = function(activity) {
-    for (var name in distanceGroups) {
-        if (distanceGroups.hasOwnProperty(name) &&
-            distanceGroups[name][0] <= activity.distance_km &&
-            distanceGroups[name][1] > activity.distance_km
-        ) {
-            return name;
-        }
-    }
-};
-
-
-var calculateDistanceGroupStats = function(activities) {
-    var stats = {};
-
-    for (var name in distanceGroups) {
-        if (distanceGroups.hasOwnProperty(name)) {
-            stats[name] = {
-                count: 0,
-                ratio: 0
-            };
-        }
-    }
-
-    if (activities.length == 0) {
-        return stats;
-    }
-
-    activities.forEach(function(activity) {
-        stats[activity.distance_group].count++;
-    });
-
-    for (name in stats) {
-        if (stats.hasOwnProperty(name)) {
-            stats[name].ratio = stats[name].count / activities.length;
-        }
-    }
-
-    return stats;
-};
-
-
-var calculatePace = function(activity) {
-    return activity.time_m / activity.distance_km;
-};
-
-
-var calculateDateGroup = function(activity, stats) {
-    var position = Math.floor((activity.start_timestamp - stats.min_timestamp) / stats.period);
-    return Math.floor(stats.min_timestamp + stats.period * (0.5 + position));
-};
+    },
+    minimumActivityCountPerDistance = 4;
 
 
 var calculateDatePeriodsCount = function(years) {
@@ -87,9 +35,9 @@ var calculateDateStats = function(activities) {
     var stats = {
         min_timestamp: 0,
         max_timestamp: 0,
-        delta_years: 0,
-        periods_count: 0,
-        period: 0
+        years: 0,
+        periods: 0,
+        period_seconds: 0
     };
 
     if (activities.length == 0) {
@@ -106,56 +54,94 @@ var calculateDateStats = function(activities) {
         stats.max_timestamp = Math.max(stats.max_timestamp, activity.start_timestamp);
     });
 
-    stats.delta_years = (stats.max_timestamp - stats.min_timestamp) / (60 * 60 * 24 * 365);
-    stats.periods_count = calculateDatePeriodsCount(stats.delta_years);
-    stats.period = (stats.max_timestamp - stats.min_timestamp) / stats.periods_count;
+    stats.years = (stats.max_timestamp - stats.min_timestamp) / (60 * 60 * 24 * 365);
+    stats.periods = calculateDatePeriodsCount(stats.years);
+    stats.period_seconds = (stats.max_timestamp - stats.min_timestamp) / stats.periods;
 
     return stats;
 };
 
 
-var calculateMostFrequentDistanceGroupStats = function(distanceGroupStats) {
-    var distanceGroupStatsArray = [];
-
-    for (name in distanceGroupStats) {
-        if (distanceGroupStats.hasOwnProperty(name) && distanceGroupStats[name].ratio > 0) {
-            distanceGroupStatsArray.push([ name, distanceGroupStats[name].ratio ]);
-        }
-    }
-
-    return distanceGroupStatsArray
-        .sort(function(a, b) { return a[1] - b[1]; })
-        .slice(-3)
-        .map(function(a) { return a[0]; });
+var calculateDateGroup = function(activity, stats) {
+    var position = Math.floor((activity.start_timestamp - stats.min_timestamp) / stats.period_seconds);
+    return Math.floor(stats.min_timestamp + stats.period_seconds * (0.5 + position));
 };
 
 
-var calculateMostFrequentStats = function(distanceGroupStats) {
-    return {
-        distance_groups: calculateMostFrequentDistanceGroupStats(distanceGroupStats)
-    };
+var calculateDistanceGroup = function(activity) {
+    for (var name in distanceGroups) {
+        if (distanceGroups.hasOwnProperty(name) &&
+            distanceGroups[name][0] <= activity.distance_km &&
+            distanceGroups[name][1] > activity.distance_km
+        ) {
+            return name;
+        }
+    }
+};
+
+
+var calculatePace = function(activity) {
+    return activity.time_m / activity.distance_km;
 };
 
 
 var calculateData = function(athlete, activities) {
-    var dateStats = calculateDateStats(activities);
+    var dateStats = calculateDateStats(activities),
+        distanceStats = {
+            distance_groups: {},
+            most_frequent: []
+        };
 
-    activities = activities.map(function(activity) {
+    for (var name in distanceGroups) {
+        if (distanceGroups.hasOwnProperty(name)) {
+            distanceStats.distance_groups[name] = {
+                relevant: true,
+                count: 0,
+                ratio: 0,
+                date_groups: {}
+            };
+        }
+    }
+
+    activities = activities.map(function(activity, i) {
         activity.date_group = calculateDateGroup(activity, dateStats);
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
 
-        delete activity.raw_data;
+        var distanceCell = distanceStats.distance_groups[activity.distance_group];
+        distanceCell.count++;
 
+        if (distanceCell.date_groups[activity.date_group] == undefined) {
+            distanceCell.date_groups[activity.date_group] = {
+                activities: []
+            };
+        }
+
+        distanceCell.date_groups[activity.date_group].activities.push(i);
+
+        delete activity.raw_data;
         return activity;
     });
 
-    var distanceGroupStats = calculateDistanceGroupStats(activities);
+    var distanceRatios = [];
+
+    for (name in distanceGroups) {
+        if (distanceGroups.hasOwnProperty(name)) {
+            distanceStats.distance_groups[name].relevant = distanceStats.distance_groups[name].count >= minimumActivityCountPerDistance;
+            distanceStats.distance_groups[name].ratio = distanceStats.distance_groups[name].count / activities.length;
+            distanceRatios.push([ name, distanceStats.distance_groups[name].ratio ]);
+        }
+    }
+
+    distanceStats.most_frequent = distanceRatios
+        .sort(function(a, b) { return a[1] - b[1]; })
+        .slice(-3)
+        .reverse()
+        .map(function(a) { return a[0]; });
 
     return {
-        distance_group_stats: distanceGroupStats,
         date_stats: dateStats,
-        most_frequent_stats: calculateMostFrequentStats(distanceGroupStats),
+        distance_stats: distanceStats,
         activities: activities
     };
 };
@@ -166,9 +152,7 @@ module.exports = {
 
     // For testing:
     calculateDistanceGroup: calculateDistanceGroup,
-    calculateDistanceGroupStats: calculateDistanceGroupStats,
     calculateDateGroup: calculateDateGroup,
     calculateDateStats: calculateDateStats,
-    calculatePace: calculatePace,
-    calculateMostFrequentDistanceGroupStats: calculateMostFrequentDistanceGroupStats
+    calculatePace: calculatePace
 };
