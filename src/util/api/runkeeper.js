@@ -95,12 +95,16 @@ var loadAthleteInfo = function(accessToken) {
 var filterActivityInfo = function(data) {
     return data.type == 'Running'
         && data.source == 'RunKeeper'
-        && data.entry_mode == 'API';
+        && data.entry_mode == 'API'
+        && data.tracking_mode == 'outdoor';
 };
 
 
 var extractActivityInfo = function(data) {
     return {
+        distance_km: data.total_distance / 1000,
+        time_m: data.duration / 60,
+        start_timestamp: new Date(data.start_time + ' GMT+00:00').getTime() / 1000,
         service: name,
         service_id: data.uri.substr(data.uri.indexOf('/fitnessActivities/')),
         raw_data: data

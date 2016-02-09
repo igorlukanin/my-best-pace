@@ -105,8 +105,13 @@ var filterActivityInfo = function(data) {
 };
 
 
+// Strava excludes resting time from moving_time so moving_time is more accurate.
+// See http://blog.strava.com/run-activity-page-updates-and-improvements-6500/
 var extractActivityInfo = function(data) {
     return {
+        distance_km: data.distance / 1000,
+        time_m: data.moving_time / 60,
+        start_timestamp: moment(data.start_date).unix(),
         service: name,
         service_id: data.id,
         raw_data: data
@@ -152,20 +157,6 @@ module.exports = {
     loadAthleteInfo: loadAthleteInfo,
     loadNewActivitiesAndUpdateAthlete: loadNewActivitiesAndUpdateAthlete
 };
-
-
-//// Strava excludes resting time from moving_time so it's more accurate
-//// See http://blog.strava.com/run-activity-page-updates-and-improvements-6500/
-//var extractActivitiesData = function(activities) {
-//    return activities.map(function(activity) {
-//        return {
-//            id:          activity.id,
-//            distance_km: activity.data.distance / 1000,
-//            time_m:      activity.data.moving_time / 60,
-//            date:        moment(activity.data.start_date).unix()
-//        };
-//    });
-//};
 
 
 //var calculateActivityDistanceGroup = function(activity) {
