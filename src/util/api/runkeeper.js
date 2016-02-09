@@ -90,6 +90,15 @@ var loadAthleteInfo = function(accessToken) {
 };
 
 
+// Unfortunately, there's no way to distinguish between manually entered activities
+// and those tracked via GPS. Both have { source: 'RunKeeper', entry_mode: 'API' }
+var filterActivityInfo = function(data) {
+    return data.type == 'Running'
+        && data.source == 'RunKeeper'
+        && data.entry_mode == 'API';
+};
+
+
 var extractActivityInfo = function(data) {
     return {
         service: name,
@@ -116,9 +125,13 @@ var loadNewActivitiesAndUpdateAthlete = function(athleteInfo) {
                 if (delta < result.items.length) {
                     athleteInfo.activity_count = Math.min(result.size, activityCount + result.items.length);
 
+                    var activityInfos = result.items.slice(0, delta)
+                        .filter(filterActivityInfo)
+                        .map(extractActivityInfo);
+
                     resolve({
                         athleteInfo: athleteInfo,
-                        activityInfos: result.items.slice(0, delta).map(extractActivityInfo)
+                        activityInfos: activityInfos
                     });
                 }
                 // Not all new activities loaded, loading...
@@ -133,9 +146,13 @@ var loadNewActivitiesAndUpdateAthlete = function(athleteInfo) {
                             var delta = result.size - activityCount;
                             athleteInfo.activity_count = Math.min(result.size, activityCount + result.items.length);
 
+                            var activityInfos = result.items.slice(0, delta)
+                                .filter(filterActivityInfo)
+                                .map(extractActivityInfo);
+
                             resolve({
                                 athleteInfo: athleteInfo,
-                                activityInfos: result.items.slice(0, delta).map(extractActivityInfo)
+                                activityInfos: activityInfos
                             });
                         }
                     });
