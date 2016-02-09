@@ -157,35 +157,3 @@ module.exports = {
     loadAthleteInfo: loadAthleteInfo,
     loadNewActivitiesAndUpdateAthlete: loadNewActivitiesAndUpdateAthlete
 };
-
-
-//var extractActivitiesData = function(athlete, activities) {
-//    var activitiesData = helpers[athlete.service].extractActivitiesData(activities);
-//
-//    return activitiesData.map(function(activity) {
-//        activity.pace_m_km = activity.time_m / activity.distance_km;
-//        activity.distance_group = calculateActivityDistanceGroup(activity);
-//
-//        return activity;
-//    });
-//};
-//
-//var calculatePaceStatistics = function(activities) {
-//    //activities.sort(function(a, b) {
-//    //    return a.distance_km - b.distance_km;
-//    //});
-//
-//    var distanceGroups = {};
-//
-//    activities.forEach(function(activity) {
-//        if (!distanceGroups[activity.distance_group]) {
-//            distanceGroups[activity.distance_group] = 0;
-//        }
-//
-//        distanceGroups[activity.distance_group]++;
-//    });
-//
-//    return {
-//        distanceGroups: distanceGroups
-//    };
-//};

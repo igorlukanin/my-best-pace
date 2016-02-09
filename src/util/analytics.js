@@ -57,6 +57,11 @@ var calculateDistanceGroupStats = function(activities) {
 };
 
 
+var calculatePace = function(activity) {
+    return activity.time_m / activity.distance_km;
+};
+
+
 var calculateMostFrequentDistanceGroupStats = function(distanceGroupStats) {
     var distanceGroupStatsArray = [];
 
@@ -85,6 +90,9 @@ var calculateData = function(athlete, activities) {
 
     activities = activities.map(function(activity) {
         activity.distance_group = calculateDistanceGroup(activity);
+        activity.pace_m_km = calculatePace(activity);
+
+        delete activity.raw_data;
 
         return activity;
     });
@@ -94,7 +102,7 @@ var calculateData = function(athlete, activities) {
     return {
         distance_group_stats: distanceGroupStats,
         most_frequent_stats: calculateMostFrequentStats(distanceGroupStats),
-        "todo": "add more data"
+        activities: activities
     };
 };
 
@@ -105,13 +113,6 @@ module.exports = {
     // For testing:
     calculateDistanceGroup: calculateDistanceGroup,
     calculateDistanceGroupStats: calculateDistanceGroupStats,
+    calculatePace: calculatePace,
     calculateMostFrequentDistanceGroupStats: calculateMostFrequentDistanceGroupStats
 };
-
-
-//var calculateActivityDistanceGroup = function(activity) {
-//                            activity.distance_km >= 13.0 && activity.distance_km <  18.5 ? '16k (10m)' :
-//                                activity.distance_km >= 18.5 && activity.distance_km <  23.7 ? '21k (HM)' :
-//                                    activity.distance_km >= 23.7 && activity.distance_km <  38.6 ? 'HM-M' :
-//                                        activity.distance_km >= 38.6 && activity.distance_km <  44.8 ? '42k (M)' : 'UM';
-//};

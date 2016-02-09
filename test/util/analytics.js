@@ -100,4 +100,15 @@ describe(util.path(), function() {
             expect(actual).to.have.members([ '5k', '8k', '10k' ]);
         });
     });
+
+    describe('calculatePace', function() {
+        it('should be correct', function() {
+            var actual = analytics.calculatePace({
+                distance_km: 10.2,
+                time_m: 48.5
+            });
+
+            expect(actual).to.be.within(4.7, 4.8);
+        });
+    });
 });
