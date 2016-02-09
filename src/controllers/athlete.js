@@ -1,19 +1,32 @@
-var router   = require('express').Router(),
+var Promise = require('promise'),
+    router = require('express').Router(),
 
-    athletes = require('../models/athlete');
+    athletes = require('../models/athlete'),
+    analytics = require('../util/analytics');
 
 
 router.get('/:id', function(req, res) {
     var id = req.params.id;
 
-    athletes
-        .load(id)
-        .then(function(athleteInfo) {
+    var athleteInfo = athletes.load(id),
+        activityInfos = athleteInfo.then(function(athleteInfo) {
+            return athletes.loadActivities(athleteInfo);
+    });
+
+    Promise
+        .all([ athleteInfo, activityInfos ])
+        .then(function(result) {
+            athleteInfo = result[0];
+            activityInfos = result[1];
+
             res.render('athlete', {
-                athlete: athleteInfo
+                athlete: athleteInfo,
+                analytics: analytics.calculate(athleteInfo, activityInfos)
             });
         }, function(err) {
-            res.render('errors/athlete');
+            res.render('errors/athlete', {
+                err: err
+            });
         });
 });
 

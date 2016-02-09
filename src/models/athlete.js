@@ -67,7 +67,10 @@ var loadAthlete = function(athleteId) {
             .get(athleteId).run(c)
             .then(function(athleteInfo) {
                 if (athleteInfo == null) {
-                    return Promise.reject(athleteId);
+                    return Promise.reject({
+                        message: 'Athlete not found',
+                        athleteId: athleteId
+                    });
                 }
 
                 return athleteInfo;
