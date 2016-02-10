@@ -20,6 +20,7 @@ require('promise/lib/rejection-tracking').enable({
 
 express()
     .use('/static',               express.static('static'))
+    .use('/static/css/pure',      express.static('node_modules/purecss/build'))
     .use('/static/js/d3',         express.static('node_modules/d3'))
     .use('/static/js/regression', express.static('node_modules/regression/src'))
 

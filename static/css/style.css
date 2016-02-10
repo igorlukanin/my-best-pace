@@ -1,10 +1,10 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:600,400,300);
 
 body {
     background-color: #efefef;
     color: #333;
     font-family: 'Open Sans', sans-serif;
-    font-size: 12pt;
+    font-size: 10pt;
     font-weight: 300;
     margin: 5em 10em;
 }
@@ -110,22 +110,47 @@ body {
     color: #444;
 }
 
-.athlete {
+.card-title {
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
 
+    margin-bottom: .5em;
 }
 
-.athlete_avatar {
-
+.card {
+    background-color: #fff;
+    min-height: 125px;
 }
 
-.athlete_avatar_image {
-    border-color: #666;
+.avatar {
+    line-height: 125px;
+    text-align: right;
+}
+
+.avatar-image {
     border-radius: 50%;
     border-style: solid;
-    border-width: 1px;
+    border-width: 0;
+
+    height: 75px;
+    width: 75px;
+
+    vertical-align: middle;
 }
 
-.athlete_info {
-    font-size: 32pt;
-    line-height: 126px;
+.name-block {
+    font-size: 20pt;
+    line-height: 120px;
+}
+
+.name {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+}
+
+.pure-g-pad > div > * {
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
