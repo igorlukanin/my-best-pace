@@ -9,7 +9,8 @@ var distanceGroups = {
         '21k': [18.5, 23.7],
         '30k': [23.7, 38.6],
         '42k': [38.6, 44.8],
-        '00k': [44.8, Infinity]
+        '00k': [44.8, Infinity],
+        'all': [-Infinity, Infinity]
     },
     periodsPerYearCounts = {
         '0y': [0.0, 0.5, 12], // 12 per year
@@ -70,7 +71,7 @@ var calculateDateGroup = function(activity, stats) {
 
 var calculateDistanceGroup = function(activity) {
     for (var name in distanceGroups) {
-        if (distanceGroups.hasOwnProperty(name) &&
+        if (distanceGroups.hasOwnProperty(name) && name != 'all' &&
             distanceGroups[name][0] <= activity.distance_km &&
             distanceGroups[name][1] > activity.distance_km
         ) {
@@ -103,7 +104,9 @@ var calculateData = function(athlete, activities) {
         }
     }
 
-    activities = activities.map(function(activity) {
+    activities = activities.filter(function(activity) {
+        return activity.distance_km > 0;
+    }).map(function(activity) {
         activity.date_group = calculateDateGroup(activity, dateStats);
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
@@ -113,13 +116,32 @@ var calculateData = function(athlete, activities) {
 
         if (distanceCell.date_groups[activity.date_group] == undefined) {
             distanceCell.date_groups[activity.date_group] = {
+                count: 0,
                 min_pace: 0,
                 max_pace: 0,
+                mean_pace: 0,
                 activities: []
             };
         }
 
+        distanceCell.date_groups[activity.date_group].count++;
         distanceCell.date_groups[activity.date_group].activities.push(activity);
+
+        var allCell = distanceStats.distance_groups.all;
+        allCell.count++;
+
+        if (allCell.date_groups[activity.date_group] == undefined) {
+            allCell.date_groups[activity.date_group] = {
+                count: 0,
+                min_pace: 0,
+                max_pace: 0,
+                mean_pace: 0,
+                activities: []
+            };
+        }
+
+        allCell.date_groups[activity.date_group].count++;
+        allCell.date_groups[activity.date_group].activities.push(activity);
 
         delete activity.raw_data;
         return activity;
@@ -133,18 +155,25 @@ var calculateData = function(athlete, activities) {
 
             distanceCell.relevant = distanceCell.count >= minimumActivityCountPerDistance;
             distanceCell.ratio = distanceCell.count / activities.length;
-            distanceRatios.push([ name, distanceCell.ratio ]);
+
+            if (name != 'all') {
+                distanceRatios.push([ name, distanceCell.ratio ]);
+            }
 
             for (var date in distanceCell.date_groups) {
                 if (distanceCell.date_groups.hasOwnProperty(date)) {
                     var dateCell = distanceCell.date_groups[date];
 
-                    dateCell.min_pace = dateCell.activities.reduce(function(previous, current) {
-                        return previous ? Math.min(previous, current.pace_m_km) : current.pace_m_km;
+                    dateCell.min_pace = dateCell.activities.reduce(function(min, current) {
+                        return min ? Math.min(min, current.pace_m_km) : current.pace_m_km;
                     }, 0);
 
-                    dateCell.max_pace = dateCell.activities.reduce(function(previous, current) {
-                        return previous ? Math.max(previous, current.pace_m_km) : current.pace_m_km;
+                    dateCell.max_pace = dateCell.activities.reduce(function(max, current) {
+                        return max ? Math.max(max, current.pace_m_km) : current.pace_m_km;
+                    }, 0);
+
+                    dateCell.mean_pace = dateCell.activities.reduce(function(partialSum, current) {
+                        return partialSum + current.pace_m_km / dateCell.activities.length;
                     }, 0);
                 }
 
@@ -154,6 +183,7 @@ var calculateData = function(athlete, activities) {
     }
 
     distanceStats.most_frequent = distanceRatios
+        .filter(function(a) { return a[1] > 0; })
         .sort(function(a, b) { return a[1] - b[1]; })
         .slice(-3)
         .reverse()
