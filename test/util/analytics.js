@@ -7,6 +7,35 @@ var util = require('../util'),
 describe(util.path(), function() {
     describe('calculateDistanceGroup', function() {
         var activities = [{
+            start_timestamp: 1447995168, // 20 Nov 2015
+            date_group: 1446318000       // 01 Nov 2015
+        }, {
+            start_timestamp: 1449744425, // 10 Dec 2015
+            date_group: 1448910000       // 01 Dec 2015
+        }, {
+            start_timestamp: 1452620547, // 12 Jan 2016
+            date_group: 1451588400       // 01 Jan 2016
+        }, {
+            start_timestamp: 1455006949, // 09 Feb 2016
+            date_group: 1454266800       // 01 Feb 2016
+        }, {
+            start_timestamp: 1455549927, // 15 Feb 2016
+            date_group: 1454266800       // 01 Feb 2016
+        }];
+
+        var stats = analytics.calculateDateStats(activities);
+
+        activities.forEach(function(activity) {
+            it('should calculate correctly for ' + activity.start_timestamp, function() {
+                var actual = analytics.calculateDateGroup(activity, stats);
+
+                expect(actual).to.equal(activity.date_group);
+            });
+        });
+    });
+
+    describe('calculateDateGroup', function() {
+        var activities = [{
             distance_km: 0.4,
             distance_group: '0k'
         }, {
@@ -43,14 +72,14 @@ describe(util.path(), function() {
     describe('calculateDateStats', function() {
         it('should be correct', function() {
             var actual = analytics.calculateDateStats([
-                { start_timestamp: 1234 },
-                { start_timestamp: 4567 },
-                { start_timestamp: 6789 }
+                { start_timestamp: 1447995168 },
+                { start_timestamp: 1449744425 },
+                { start_timestamp: 1452620547 }
             ]);
 
             expect(actual).to.be.an('object');
-            expect(actual.min_timestamp).to.equal(1234);
-            expect(actual.max_timestamp).to.equal(6789);
+            expect(actual.min_timestamp).to.equal(1446318000);
+            expect(actual.max_timestamp).to.equal(1452620547);
         });
 
         it('should be zero if there are no activities', function() {

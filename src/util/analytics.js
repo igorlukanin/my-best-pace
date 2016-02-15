@@ -20,25 +20,11 @@ var distanceGroups = {
     minimumActivityCountPerDistance = 4;
 
 
-var calculateDatePeriodsCount = function(years) {
-    for (var name in periodsPerYearCounts) {
-        if (periodsPerYearCounts.hasOwnProperty(name) &&
-            periodsPerYearCounts[name][0] <= years &&
-            periodsPerYearCounts[name][1] > years
-        ) {
-            return Math.ceil(periodsPerYearCounts[name][2] * years);
-        }
-    }
-};
-
-
 var calculateDateStats = function(activities) {
     var stats = {
         min_timestamp: 0,
         max_timestamp: 0,
-        years: 0,
-        periods: 0,
-        period_seconds: 0
+        years: 0
     };
 
     if (activities.length == 0) {
@@ -47,25 +33,25 @@ var calculateDateStats = function(activities) {
 
     activities.forEach(function(activity) {
         if (stats.min_timestamp == 0 || stats.max_timestamp == 0) {
-            stats.min_timestamp = activity.start_timestamp;
+            stats.min_timestamp = calculateDateGroup(activity);
             stats.max_timestamp = activity.start_timestamp;
         }
 
-        stats.min_timestamp = Math.min(stats.min_timestamp, activity.start_timestamp);
+        stats.min_timestamp = Math.min(stats.min_timestamp, calculateDateGroup(activity));
         stats.max_timestamp = Math.max(stats.max_timestamp, activity.start_timestamp);
     });
 
     stats.years = (stats.max_timestamp - stats.min_timestamp) / (60 * 60 * 24 * 365);
-    stats.periods = calculateDatePeriodsCount(stats.years);
-    stats.period_seconds = (stats.max_timestamp - stats.min_timestamp) / stats.periods;
 
     return stats;
 };
 
 
-var calculateDateGroup = function(activity, stats) {
-    var position = Math.floor((activity.start_timestamp - stats.min_timestamp) / stats.period_seconds);
-    return Math.floor(stats.min_timestamp + stats.period_seconds * (0.5 + position));
+var calculateDateGroup = function(activity) {
+    var date = new Date(1000 * activity.start_timestamp);
+    var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+    return firstDayOfMonth.getTime() / 1000;
 };
 
 
@@ -107,7 +93,7 @@ var calculateData = function(athlete, activities) {
     activities = activities.filter(function(activity) {
         return activity.distance_km > 0;
     }).map(function(activity) {
-        activity.date_group = calculateDateGroup(activity, dateStats);
+        activity.date_group = calculateDateGroup(activity);
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
 
