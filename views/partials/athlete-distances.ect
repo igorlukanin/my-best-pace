@@ -1,0 +1,68 @@
+<style>
+    .chart {
+        /*border: solid 1px #eee;*/
+    }
+
+    .athlete-distances .name {
+        fill: #999;
+        font: 12px sans-serif;
+        text-anchor: middle;
+    }
+</style>
+
+<svg class="chart athlete-distances"></svg>
+
+<script>
+    var data = <%- JSON.stringify(@analytics.distances) %>;
+
+    var width = 400,
+        nameAreaHeight = 25,
+        barAreaHeight = 175,
+        height = nameAreaHeight + barAreaHeight,
+        minimumBarWidthForName = 15;
+
+    var y = d3
+        .scale
+        .linear()
+        .range([0, barAreaHeight])
+        .domain([0, d3.max(data, function(d) { return d.ratio > 0 ? d.distance : 0; })]);
+
+    var maxColorIndex = 9;
+
+    var chart = d3.select('.athlete-distances').attr('width', width).attr('height', height);
+
+    var ratioSum = 0;
+
+    chart.selectAll('g')
+            .data(data)
+            .enter().append('g')
+            .each(function(d, i) {
+                var bar = d3.select(this),
+                    barWidth = width * d.ratio,
+                    barHeight = y(d.distance) >= 2 ? y(d.distance) : 2;
+
+                bar
+                    .attr("transform", 'translate(' + width * ratioSum + ', 0)')
+                    .attr('class', 'Reds');
+
+                bar
+                    .append('rect')
+                    .attr('x', 0)
+                    .attr('y', barAreaHeight - barHeight)
+                    .attr('width', barWidth > 0 ? barWidth : 0)
+                    .attr('height', barHeight)
+                    .attr('class', 'q' + (i < maxColorIndex ? i : maxColorIndex - 1) + '-' + maxColorIndex);
+
+                if (barWidth > minimumBarWidthForName) {
+                    bar
+                        .append('text')
+                        .attr('class', 'name')
+                        .attr('x', barWidth / 2)
+                        .attr('y', barAreaHeight + nameAreaHeight)
+                        .attr('dy', '-0.65em')
+                        .text(d.name);
+                }
+
+                ratioSum += +d.ratio;
+            });
+</script>

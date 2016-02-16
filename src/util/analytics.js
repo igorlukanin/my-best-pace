@@ -1,23 +1,18 @@
 var distanceGroups = {
-        '0k': [0.0, 0.5],
-        '1k': [0.5, 2.0],
-        '3k': [2.0, 4.0],
-        '5k': [4.0, 6.5],
-        '8k': [6.5, 9.0],
-        '10k': [9.0, 13.0],
-        '16k': [13.0, 18.5],
-        '21k': [18.5, 23.7],
-        '30k': [23.7, 38.6],
-        '42k': [38.6, 44.8],
-        '00k': [44.8, Infinity],
+        '0': [0.0, 0.5],
+        '1': [0.5, 2.0],
+        '3': [2.0, 4.0],
+        '5': [4.0, 6.5],
+        '8': [6.5, 9.0],
+        '10': [9.0, 13.0],
+        '16': [13.0, 18.5],
+        '21': [18.5, 23.7],
+        '30': [23.7, 38.6],
+        '42': [38.6, 44.8],
+        '42+': [44.8, Infinity],
         'all': [-Infinity, Infinity]
     },
-    periodsPerYearCounts = {
-        '0y': [0.0, 0.5, 12], // 12 per year
-        '1y': [0.5, 1.5, 6], // 6 per year
-        '00y': [1.5, Infinity, 4] // 4 per year
-    },
-    minimumActivityCountPerDistance = 4;
+    minimumActivityRatioPerDistance = 0.1;
 
 
 var calculateDateStats = function(activities) {
@@ -139,8 +134,8 @@ var calculateData = function(athlete, activities) {
         if (distanceGroups.hasOwnProperty(name)) {
             distanceCell = distanceStats.distance_groups[name];
 
-            distanceCell.relevant = distanceCell.count >= minimumActivityCountPerDistance;
             distanceCell.ratio = distanceCell.count / activities.length;
+            distanceCell.relevant = distanceCell.ratio >= minimumActivityRatioPerDistance;
 
             if (name != 'all') {
                 distanceRatios.push([ name, distanceCell.ratio ]);
@@ -175,7 +170,25 @@ var calculateData = function(athlete, activities) {
         .reverse()
         .map(function(a) { return a[0]; });
 
+    // TODO: Temporary code, refactoring needed
+    var distances = [];
+
+    for (name in distanceGroups) {
+        if (distanceGroups.hasOwnProperty(name) && name != 'all') {
+            var group = distanceStats.distance_groups[name];
+
+            distances.push({
+                name: name,
+                distance: +name,
+                ratio: group.ratio.toFixed(2),
+                count: group.count,
+                relevant: group.relevant
+            });
+        }
+    }
+
     return {
+        distances: distances,
         date_stats: dateStats,
         distance_stats: distanceStats
     };
