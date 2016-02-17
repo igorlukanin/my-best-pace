@@ -27,7 +27,7 @@
         .range([0, barAreaHeight])
         .domain([0, d3.max(data, function(d) { return d.ratio > 0 ? d.distance : 0; })]);
 
-    var maxColorIndex = 9;
+    var maxColorCount = 9;
 
     var chart = d3.select('.athlete-distances').attr('width', width).attr('height', height);
 
@@ -43,8 +43,7 @@
                     barHeight = y(d.distance) >= 2 ? y(d.distance) : 2;
 
                 bar
-                    .attr("transform", 'translate(' + width * ratioSum + ', 0)')
-                    .attr('class', 'Reds');
+                    .attr("transform", 'translate(' + width * ratioSum + ', 0)');
 
                 bar
                     .append('rect')
@@ -52,7 +51,7 @@
                     .attr('y', barAreaHeight - barHeight)
                     .attr('width', barWidth > barWidthGap ? barWidth - barWidthGap : 0)
                     .attr('height', barHeight)
-                    .attr('class', 'q' + (i < maxColorIndex ? i : maxColorIndex - 1) + '-' + maxColorIndex);
+                    .attr('fill', colorbrewer.Reds[maxColorCount][i < maxColorCount ? i : maxColorCount - 1]);
 
                 if (barWidth > minimumBarWidthForName) {
                     bar
