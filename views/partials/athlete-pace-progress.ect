@@ -2,6 +2,12 @@
     .athlete-pace-progress .line {
         fill: none;
     }
+
+    .athlete-pace-progress .name {
+        fill: #999;
+        font: 12px sans-serif;
+        text-anchor: end;
+    }
 </style>
 
 <svg class="chart athlete-pace-progress"></svg>
@@ -84,5 +90,21 @@
 
             i++;
         }
+    }
+
+    var year = new Date(minTimestamp * 1000);
+    year.setDate(1);
+    year.setMonth(1);
+
+    while (year.getTime() / 1000 < maxTimestamp) {
+        year.setFullYear(year.getFullYear() + 1);
+
+        chart
+            .append('text')
+            .attr('class', 'name')
+            .attr('x', x(year.getTime() / 1000))
+            .attr('y', lineAreaHeight + dateAreaHeight)
+            .attr('dy', '-0.65em')
+            .text(year.getFullYear());
     }
 </script>
