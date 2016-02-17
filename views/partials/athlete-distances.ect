@@ -39,6 +39,7 @@
             .each(function(d, i) {
                 var bar = d3.select(this),
                     barWidth = width * d.ratio,
+                    barWidthGap = i + 1 == data.length ? 0 : 1,
                     barHeight = y(d.distance) >= 2 ? y(d.distance) : 2;
 
                 bar
@@ -49,7 +50,7 @@
                     .append('rect')
                     .attr('x', 0)
                     .attr('y', barAreaHeight - barHeight)
-                    .attr('width', barWidth > 0 ? barWidth : 0)
+                    .attr('width', barWidth > barWidthGap ? barWidth - barWidthGap : 0)
                     .attr('height', barHeight)
                     .attr('class', 'q' + (i < maxColorIndex ? i : maxColorIndex - 1) + '-' + maxColorIndex);
 
