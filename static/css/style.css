@@ -153,3 +153,7 @@ body {
     margin-left: 1rem;
     margin-right: 1rem;
 }
+
+.chart {
+    border: solid 1px #eee;
+}

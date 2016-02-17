@@ -69,14 +69,11 @@ var calculatePace = function(activity) {
 
 var calculateData = function(athlete, activities) {
     var dateStats = calculateDateStats(activities),
-        distanceStats = {
-            distance_groups: {},
-            most_frequent: []
-        };
+        distanceStats = {};
 
     for (var name in distanceGroups) {
         if (distanceGroups.hasOwnProperty(name)) {
-            distanceStats.distance_groups[name] = {
+            distanceStats[name] = {
                 relevant: true,
                 count: 0,
                 ratio: 0,
@@ -92,7 +89,7 @@ var calculateData = function(athlete, activities) {
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
 
-        var distanceCell = distanceStats.distance_groups[activity.distance_group];
+        var distanceCell = distanceStats[activity.distance_group];
         distanceCell.count++;
 
         if (distanceCell.date_groups[activity.date_group] == undefined) {
@@ -108,7 +105,7 @@ var calculateData = function(athlete, activities) {
         distanceCell.date_groups[activity.date_group].count++;
         distanceCell.date_groups[activity.date_group].activities.push(activity);
 
-        var allCell = distanceStats.distance_groups.all;
+        var allCell = distanceStats.all;
         allCell.count++;
 
         if (allCell.date_groups[activity.date_group] == undefined) {
@@ -132,7 +129,7 @@ var calculateData = function(athlete, activities) {
 
     for (name in distanceGroups) {
         if (distanceGroups.hasOwnProperty(name)) {
-            distanceCell = distanceStats.distance_groups[name];
+            distanceCell = distanceStats[name];
 
             distanceCell.ratio = distanceCell.count / activities.length;
             distanceCell.relevant = distanceCell.ratio >= minimumActivityRatioPerDistance;
@@ -163,19 +160,12 @@ var calculateData = function(athlete, activities) {
         }
     }
 
-    distanceStats.most_frequent = distanceRatios
-        .filter(function(a) { return a[1] > 0; })
-        .sort(function(a, b) { return a[1] - b[1]; })
-        .slice(-3)
-        .reverse()
-        .map(function(a) { return a[0]; });
-
     // TODO: Temporary code, refactoring needed
     var distances = [];
 
     for (name in distanceGroups) {
         if (distanceGroups.hasOwnProperty(name) && name != 'all') {
-            var group = distanceStats.distance_groups[name];
+            var group = distanceStats[name];
 
             distances.push({
                 name: name,

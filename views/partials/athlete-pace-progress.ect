@@ -1,0 +1,88 @@
+<style>
+    .athlete-pace-progress .line {
+        fill: none;
+    }
+</style>
+
+<svg class="chart athlete-pace-progress"></svg>
+
+<script>
+    var data = <%- JSON.stringify(@analytics.distance_stats) %>;
+
+    var minTimestamp, maxTimestamp, minPace, maxPace;
+
+    for (var timestamp in data.all.date_groups) {
+        if (data.all.date_groups.hasOwnProperty(timestamp)) {
+            if (minTimestamp == undefined || minTimestamp > timestamp) {
+                minTimestamp = timestamp;
+            }
+
+            if (maxTimestamp == undefined || maxTimestamp < timestamp) {
+                maxTimestamp = timestamp;
+            }
+
+            if (minPace == undefined || minPace > data.all.date_groups[timestamp].min_pace) {
+                minPace = data.all.date_groups[timestamp].min_pace;
+            }
+
+            if (maxPace == undefined || maxPace < data.all.date_groups[timestamp].max_pace) {
+                maxPace = data.all.date_groups[timestamp].max_pace;
+            }
+        }
+    }
+
+    var width = 1000,
+            dateAreaHeight = 25,
+            lineAreaHeight = 375,
+            height = dateAreaHeight + lineAreaHeight;
+
+    var x = d3
+        .scale
+        .linear()
+        .range([0, width])
+        .domain([minTimestamp, maxTimestamp]);
+
+    var y = d3
+        .scale
+        .linear()
+        .range([0, lineAreaHeight])
+        .domain([maxPace, minPace]);
+
+    var maxColorCount = 9;
+
+    var chart = d3
+        .select('.athlete-pace-progress')
+        .attr('width', width)
+        .attr('height', height);
+
+    var i = 0;
+
+    for (var distance in data) {
+        if (data.hasOwnProperty(distance) && distance != 'all') {
+            var lineData = [];
+
+            for (timestamp in data[distance].date_groups) {
+                if (data[distance].date_groups.hasOwnProperty(timestamp)) {
+                    lineData.push([
+                        x(timestamp),
+                        y(data[distance].date_groups[timestamp].min_pace)
+                    ]);
+                }
+            }
+
+            var line = d3.svg
+                .line()
+                .interpolate('cardinal')
+                .tension(0.9);
+
+            chart
+                .append('path')
+                .datum(lineData)
+                .attr('class', 'line')
+                .attr('d', line)
+                .attr('stroke', colorbrewer.Reds[maxColorCount][i < maxColorCount ? i : maxColorCount - 1]);
+
+            i++;
+        }
+    }
+</script>

@@ -37,16 +37,16 @@ describe(util.path(), function() {
     describe('calculateDateGroup', function() {
         var activities = [{
             distance_km: 0.4,
-            distance_group: '0k'
+            distance_group: '0'
         }, {
             distance_km: 9.5,
-            distance_group: '10k'
+            distance_group: '10'
         }, {
             distance_km: 26.3,
-            distance_group: '30k'
+            distance_group: '30'
         }, {
             distance_km: 201.0,
-            distance_group: '00k'
+            distance_group: '42+'
         }];
 
         activities.forEach(function(activity) {
