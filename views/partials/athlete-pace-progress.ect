@@ -8,6 +8,12 @@
         font: 12px sans-serif;
         text-anchor: end;
     }
+
+    .athlete-pace-progress .pace {
+        fill: #999;
+        font: 12px sans-serif;
+        text-anchor: start;
+    }
 </style>
 
 <svg class="chart athlete-pace-progress"></svg>
@@ -37,15 +43,20 @@
         }
     }
 
-    var width = 1000,
-            dateAreaHeight = 25,
-            lineAreaHeight = 375,
-            height = dateAreaHeight + lineAreaHeight;
+    minPace = (Math.floor(minPace * 2) / 2).toFixed(1);
+    maxPace = (Math.floor(maxPace * 2) / 2).toFixed(1);
+
+    var lineAreaWidth = 950,
+        paceAreaWidth = 50,
+        width = lineAreaWidth + paceAreaWidth,
+        dateAreaHeight = 25,
+        lineAreaHeight = 375,
+        height = dateAreaHeight + lineAreaHeight;
 
     var x = d3
         .scale
         .linear()
-        .range([0, width])
+        .range([0, lineAreaWidth])
         .domain([minTimestamp, maxTimestamp]);
 
     var y = d3
@@ -96,7 +107,7 @@
     year.setDate(1);
     year.setMonth(1);
 
-    while (year.getTime() / 1000 < maxTimestamp) {
+    while (year.getTime() / 1000 <= maxTimestamp) {
         year.setFullYear(year.getFullYear() + 1);
 
         chart
@@ -106,5 +117,22 @@
             .attr('y', lineAreaHeight + dateAreaHeight)
             .attr('dy', '-0.65em')
             .text(year.getFullYear());
+    }
+
+    var pace = +minPace;
+
+    while (pace <= maxPace) {
+        var minutes = Math.floor(pace),
+            seconds = (pace - minutes) * 60;
+
+        chart
+            .append('text')
+            .attr('class', 'pace')
+            .attr('x', lineAreaWidth)
+            .attr('y', y(pace))
+            .attr('dx', '1em')
+            .text(minutes + ':' + (seconds < 10 ? '0' + seconds : seconds));
+
+        pace += 0.5;
     }
 </script>
