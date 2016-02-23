@@ -16,123 +16,164 @@
     }
 </style>
 
-<svg class="chart athlete-pace-progress"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__0"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__1"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__3"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__5"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__8"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__10"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__16"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__21"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__42"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__42plus"></svg>
+<svg class="chart athlete-pace-progress athlete-pace-progress__all"></svg>
 
 <script>
     var data = <%- JSON.stringify(@analytics.distance_stats) %>;
 
-    var minTimestamp, maxTimestamp, minPace, maxPace;
+    var drawPaceProgressGraph = function(data, selectedDistance, selector) {
+        if (!data[selectedDistance].relevant) {
+            var nodes = document.getElementsByClassName(selector.substr(1));
 
-    for (var timestamp in data.all.date_groups) {
-        if (data.all.date_groups.hasOwnProperty(timestamp)) {
-            if (minTimestamp == undefined || minTimestamp > timestamp) {
-                minTimestamp = timestamp;
-            }
+            Array.prototype.slice.call(nodes).forEach(function(element) {
+                element.parentNode.removeChild(element);
+            });
 
-            if (maxTimestamp == undefined || maxTimestamp < timestamp) {
-                maxTimestamp = timestamp;
-            }
-
-            if (minPace == undefined || minPace > data.all.date_groups[timestamp].min_pace) {
-                minPace = data.all.date_groups[timestamp].min_pace;
-            }
-
-            if (maxPace == undefined || maxPace < data.all.date_groups[timestamp].max_pace) {
-                maxPace = data.all.date_groups[timestamp].max_pace;
-            }
+            return;
         }
-    }
 
-    minPace = (Math.floor(minPace * 2) / 2).toFixed(1);
-    maxPace = (Math.floor(maxPace * 2) / 2).toFixed(1);
+        var minTimestamp, maxTimestamp, minPace, maxPace;
 
-    var lineAreaWidth = 950,
-        paceAreaWidth = 50,
-        width = lineAreaWidth + paceAreaWidth,
-        dateAreaHeight = 25,
-        lineAreaHeight = 375,
-        height = dateAreaHeight + lineAreaHeight;
+        for (var timestamp in data.all.date_groups) {
+            if (data.all.date_groups.hasOwnProperty(timestamp)) {
+                if (minTimestamp == undefined || minTimestamp > timestamp) {
+                    minTimestamp = timestamp;
+                }
 
-    var x = d3
-        .scale
-        .linear()
-        .range([0, lineAreaWidth])
-        .domain([minTimestamp, maxTimestamp]);
+                if (maxTimestamp == undefined || maxTimestamp < timestamp) {
+                    maxTimestamp = timestamp;
+                }
 
-    var y = d3
-        .scale
-        .linear()
-        .range([0, lineAreaHeight])
-        .domain([maxPace, minPace]);
+                if (minPace == undefined || minPace > data.all.date_groups[timestamp].min_pace) {
+                    minPace = data.all.date_groups[timestamp].min_pace;
+                }
 
-    var maxColorCount = 9;
-
-    var chart = d3
-        .select('.athlete-pace-progress')
-        .attr('width', width)
-        .attr('height', height);
-
-    var i = 0;
-
-    for (var distance in data) {
-        if (data.hasOwnProperty(distance) && distance != 'all') {
-            var lineData = [];
-
-            for (timestamp in data[distance].date_groups) {
-                if (data[distance].date_groups.hasOwnProperty(timestamp)) {
-                    lineData.push([
-                        x(timestamp),
-                        y(data[distance].date_groups[timestamp].min_pace)
-                    ]);
+                if (maxPace == undefined || maxPace < data.all.date_groups[timestamp].max_pace) {
+                    maxPace = data.all.date_groups[timestamp].max_pace;
                 }
             }
+        }
 
-            var line = d3.svg
-                .line()
-                .interpolate('cardinal')
-                .tension(0.9);
+        minPace = (Math.floor(minPace * 2) / 2).toFixed(1);
+        maxPace = (Math.floor(maxPace * 2) / 2).toFixed(1);
 
-            chart
-                .append('path')
-                .datum(lineData)
-                .attr('class', 'line')
-                .attr('d', line)
-                .attr('stroke', colorbrewer.Reds[maxColorCount][i < maxColorCount ? i : maxColorCount - 1]);
+        var lineAreaWidth = 450,
+            paceAreaWidth = 50,
+            width = lineAreaWidth + paceAreaWidth,
+            dateAreaHeight = 25,
+            lineAreaHeight = 225,
+            height = dateAreaHeight + lineAreaHeight;
+
+        var x = d3
+                .scale
+                .linear()
+                .range([0, lineAreaWidth])
+                .domain([minTimestamp, maxTimestamp]);
+
+        var y = d3
+                .scale
+                .linear()
+                .range([0, lineAreaHeight])
+                .domain([maxPace, minPace]);
+
+        var maxColorCount = 9;
+
+        var chart = d3
+                .select(selector)
+                .attr('width', width)
+                .attr('height', height);
+
+        var i = 0;
+
+        for (var distance in data) {
+            if (data.hasOwnProperty(distance) && distance == selectedDistance) {
+                var lineData = [];
+
+                for (timestamp in data[distance].date_groups) {
+                    if (data[distance].date_groups.hasOwnProperty(timestamp)) {
+                        lineData.push([
+                            x(timestamp),
+                            y(data[distance].date_groups[timestamp].min_pace)
+                        ]);
+                    }
+                }
+
+                var line = d3.svg
+                        .line()
+                        .interpolate('cardinal')
+                        .tension(0.9);
+
+                chart
+                        .append('path')
+                        .datum(lineData)
+                        .attr('class', 'line')
+                        .attr('d', line)
+                        .attr('stroke', colorbrewer.Reds[maxColorCount][i < maxColorCount ? i : maxColorCount - 1]);
+            }
 
             i++;
         }
-    }
 
-    var year = new Date(minTimestamp * 1000);
-    year.setDate(1);
-    year.setMonth(1);
+        var year = new Date(minTimestamp * 1000);
+        year.setDate(1);
+        year.setMonth(1);
 
-    while (year.getTime() / 1000 <= maxTimestamp) {
-        year.setFullYear(year.getFullYear() + 1);
+        while (year.getTime() / 1000 <= maxTimestamp) {
+            year.setFullYear(year.getFullYear() + 1);
+
+            chart
+                    .append('text')
+                    .attr('class', 'name')
+                    .attr('x', x(year.getTime() / 1000))
+                    .attr('y', lineAreaHeight + dateAreaHeight)
+                    .attr('dy', '-0.65em')
+                    .text(year.getFullYear());
+        }
+
+        var pace = +minPace;
+
+        while (pace <= maxPace) {
+            var minutes = Math.floor(pace),
+                    seconds = (pace - minutes) * 60;
+
+            chart
+                    .append('text')
+                    .attr('class', 'pace')
+                    .attr('x', lineAreaWidth)
+                    .attr('y', y(pace))
+                    .attr('dx', '1em')
+                    .text(minutes + ':' + (seconds < 10 ? '0' + seconds : seconds));
+
+            pace += 0.5;
+        }
 
         chart
-            .append('text')
-            .attr('class', 'name')
-            .attr('x', x(year.getTime() / 1000))
-            .attr('y', lineAreaHeight + dateAreaHeight)
-            .attr('dy', '-0.65em')
-            .text(year.getFullYear());
-    }
+                .append('text')
+                .attr('class', 'pace')
+                .attr('x', 10)
+                .attr('y', 20)
+                .text(selectedDistance);
+    };
 
-    var pace = +minPace;
-
-    while (pace <= maxPace) {
-        var minutes = Math.floor(pace),
-            seconds = (pace - minutes) * 60;
-
-        chart
-            .append('text')
-            .attr('class', 'pace')
-            .attr('x', lineAreaWidth)
-            .attr('y', y(pace))
-            .attr('dx', '1em')
-            .text(minutes + ':' + (seconds < 10 ? '0' + seconds : seconds));
-
-        pace += 0.5;
-    }
+    drawPaceProgressGraph(data, '0', '.athlete-pace-progress__0');
+    drawPaceProgressGraph(data, '1', '.athlete-pace-progress__1');
+    drawPaceProgressGraph(data, '3', '.athlete-pace-progress__3');
+    drawPaceProgressGraph(data, '5', '.athlete-pace-progress__5');
+    drawPaceProgressGraph(data, '8', '.athlete-pace-progress__8');
+    drawPaceProgressGraph(data, '10', '.athlete-pace-progress__10');
+    drawPaceProgressGraph(data, '16', '.athlete-pace-progress__16');
+    drawPaceProgressGraph(data, '21', '.athlete-pace-progress__21');
+    drawPaceProgressGraph(data, '42', '.athlete-pace-progress__42');
+    drawPaceProgressGraph(data, '42+', '.athlete-pace-progress__42plus');
+    drawPaceProgressGraph(data, 'all', '.athlete-pace-progress__all');
 </script>

@@ -12,7 +12,7 @@ var distanceGroups = {
         '42+': [44.8, Infinity],
         'all': [-Infinity, Infinity]
     },
-    minimumActivityRatioPerDistance = 0.1;
+    minimumActivityCountPerDistance = 3;
 
 
 var calculateDateStats = function(activities) {
@@ -44,7 +44,8 @@ var calculateDateStats = function(activities) {
 
 var calculateDateGroup = function(activity) {
     var date = new Date(1000 * activity.start_timestamp);
-    var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    var month = Math.floor(date.getMonth() / 1) * 1;
+    var firstDayOfMonth = new Date(date.getFullYear(), month, 1);
 
     return firstDayOfMonth.getTime() / 1000;
 };
@@ -83,12 +84,16 @@ var calculateData = function(athlete, activities) {
     }
 
     activities = activities.filter(function(activity) {
-        return activity.distance_km > 0;
+        return activity.distance_km > 0
     }).map(function(activity) {
         activity.date_group = calculateDateGroup(activity);
         activity.distance_group = calculateDistanceGroup(activity);
         activity.pace_m_km = calculatePace(activity);
-
+        return activity;
+    }).filter(function(activity) {
+        return activity.pace_m_km > 2   // 1 km world record is 2:11.96
+            && activity.pace_m_km < 10; // 6 km/h is walking, not running
+    }).map(function(activity) {
         var distanceCell = distanceStats[activity.distance_group];
         distanceCell.count++;
 
@@ -132,7 +137,7 @@ var calculateData = function(athlete, activities) {
             distanceCell = distanceStats[name];
 
             distanceCell.ratio = distanceCell.count / activities.length;
-            distanceCell.relevant = distanceCell.ratio >= minimumActivityRatioPerDistance;
+            distanceCell.relevant = distanceCell.count >= minimumActivityCountPerDistance;
 
             if (name != 'all') {
                 distanceRatios.push([ name, distanceCell.ratio ]);
