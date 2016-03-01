@@ -72,6 +72,7 @@ var extractAthleteInfo = function(data, accessToken) {
 
 var loadAthleteInfo = function(accessToken) {
     if (athleteDataCache[accessToken]) {
+        var data = athleteDataCache[accessToken];
         return Promise.resolve(extractAthleteInfo(data, accessToken));
     }
 
