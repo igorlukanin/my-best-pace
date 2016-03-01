@@ -23,8 +23,8 @@
     "purecss": "^0.6.0",
     "regression": "^1.2.1",
     "rethinkdb": "^2.2.1",
-    "runkeeper-js": "^1.0.0",
-    "strava-v3": "^1.8.1",
+    "runkeeper-js": "igorlukanin/runkeeper-js",
+    "strava-v3": "igorlukanin/node-strava-v3",
     "traceback": "^0.3.1"
   }
 }
