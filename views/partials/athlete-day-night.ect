@@ -1,0 +1,47 @@
+<svg class="chart athlete-day-night"></svg>
+
+<script>
+    var data = <%- JSON.stringify(@analytics.activities) %>;
+
+    data = data.sort(function(first, second) {
+        return first.distance_km - second.distance_km;
+    });
+
+    var width = 500,
+        nameAreaHeight = 25,
+        barAreaHeight = 175,
+        height = nameAreaHeight + barAreaHeight,
+        minimumBarWidthForName = 15;
+
+    var maxColorCount = 9;
+
+    var chart = d3
+        .select('.athlete-day-night')
+        .attr('width', width)
+        .attr('height', height);
+
+    var ratioSum = 0;
+
+    chart.selectAll('g')
+            .data(data)
+            .enter().append('g')
+            .each(function(d, i) {
+                var time = new Date(d.start_timestamp * 1000);
+                time = time.getHours() + time.getMinutes() / 60
+
+                var bar = d3.select(this);
+
+                bar
+                    .attr("transform", 'translate(' + width * ratioSum + ', 0)');
+
+                bar
+                    .append('rect')
+                    .attr('x', width * time / 24)
+                    .attr('y', 0)
+                    .attr('width', 1)
+                    .attr('height', barAreaHeight)
+                    .attr('fill', colorbrewer.Reds[3][2]);
+
+                ratioSum += +d.ratio;
+            });
+</script>
