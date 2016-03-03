@@ -91,8 +91,8 @@ var calculateData = function(athlete, activities) {
         activity.pace_m_km = calculatePace(activity);
         return activity;
     }).filter(function(activity) {
-        return activity.pace_m_km > 2   // 1 km world record is 2:11.96
-            && activity.pace_m_km < 10; // 6 km/h is walking, not running
+        return activity.pace_m_km > 2  // 1 km world record is 2:11.96
+            && activity.pace_m_km < 8; // 6 km/h is walking, not running
     }).map(function(activity) {
         var distanceCell = distanceStats[activity.distance_group];
         distanceCell.count++;
