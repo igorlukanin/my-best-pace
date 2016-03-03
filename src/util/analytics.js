@@ -183,6 +183,7 @@ var calculateData = function(athlete, activities) {
     }
 
     return {
+        activities: activities,
         distances: distances,
         date_stats: dateStats,
         distance_stats: distanceStats
