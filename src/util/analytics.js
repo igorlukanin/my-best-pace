@@ -68,6 +68,46 @@ var calculatePace = function(activity) {
 };
 
 
+var calculateAwards = function(activities) {
+    var awards = {
+        hm_count: 0,
+        ytd_hm_count: 0,
+        m_count: 0,
+        ytd_m_count: 0,
+        total_running_days: 0,
+        ytd_total_running_days: 0
+    };
+
+    activities.forEach(function(activity) {
+        var firstDayOfYearTimestamp = new Date(new Date().getFullYear(), 0, 1) / 1000;
+
+        if (activity.distance_km >= 21.0975) {
+            awards.hm_count++;
+
+            if (activity.start_timestamp >= firstDayOfYearTimestamp) {
+                awards.ytd_hm_count++;
+            }
+        }
+
+        if (activity.distance_km >= 42.195) {
+            awards.m_count++;
+
+            if (activity.start_timestamp >= firstDayOfYearTimestamp) {
+                awards.ytd_m_count++;
+            }
+        }
+
+        awards.total_running_days += activity.time_m / (60 * 24);
+
+        if (activity.start_timestamp >= firstDayOfYearTimestamp) {
+            awards.ytd_total_running_days += activity.time_m / (60 * 24);
+        }
+    });
+
+    return awards;
+};
+
+
 var calculateData = function(athlete, activities) {
     var dateStats = calculateDateStats(activities),
         distanceStats = {};
@@ -182,11 +222,14 @@ var calculateData = function(athlete, activities) {
         }
     }
 
+    var awards = calculateAwards(activities);
+
     return {
         activities: activities,
         distances: distances,
         date_stats: dateStats,
-        distance_stats: distanceStats
+        distance_stats: distanceStats,
+        awards: awards
     };
 };
 
