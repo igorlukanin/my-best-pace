@@ -5,7 +5,7 @@
   "rethinkdb": {
     "host": "localhost",
     "port": 28015,
-    "db": "mybestpace"
+    "db": "pace_craze"
   },
   "replenisher-ctrl": {
     "restart_interval_ms": 900000,

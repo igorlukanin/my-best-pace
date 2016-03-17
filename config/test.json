@@ -1,6 +1,6 @@
 {
   "rethinkdb": {
-    "db": "mybestpace_test"
+    "db": "pace_craze_test"
   },
   "runkeeper": {
     "athlete_access_token": "0b0302e5635e45139b4ebecdd00a98d0"

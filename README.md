@@ -1,2 +1,2 @@
-# my-best-pace
-WIP: Public log of your best running paces
+# Pace Craze
+WIP: Public profile of your running pace progress
