@@ -22,5 +22,9 @@
     "access_token": "",
     "redirect_uri": "http://localhost:3000/login/strava/complete",
     "earliest_activity_timestamp": 946684800
+  },
+  "analytics": {
+    "recent_period_ms": 7776000000,
+    "recent_period_ms_description": "90 days"
   }
 }

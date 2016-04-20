@@ -1,5 +1,7 @@
 'use strict';
 
+const config = require('config');
+
 
 const getUtcHour = (activity) => new Date(activity.start_timestamp * 1000).getUTCHours();
 
@@ -13,5 +15,14 @@ const calculate = (activities) =>activities
     }, new Array(24).fill(0)) // 24 hours in a day
     .map((count) => count / activities.length);
 
+const calculateRecent = (activities) => calculate(activities
+    .filter((activity) => {
+        const delta = config.get('analytics.recent_period_ms');
+        return new Date().getTime() - activity.start_timestamp * 1000 < delta;
+    }));
 
-module.exports = calculate;
+
+module.exports = {
+    allTime: calculate,
+    recent: calculateRecent
+};

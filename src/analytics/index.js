@@ -232,6 +232,5 @@ var calculateData = (athlete, activities) => {
 
 
 module.exports = {
-    calculate: calculateData,
-    calculateHourAnalytics: require('./hours')
+    calculate: calculateData
 };

@@ -3,6 +3,7 @@ var Promise = require('promise'),
 
     athletes = require('../models/athlete'),
     analytics = require('../analytics');
+    hourAnalytics = require('../analytics/hours');
 
 
 router.get('/:id', (req, res) => {
@@ -16,7 +17,10 @@ router.get('/:id', (req, res) => {
         .then(([ athleteInfo, activityInfos ]) => res.render('athlete', {
             athlete: athleteInfo,
             analytics: analytics.calculate(athleteInfo, activityInfos),
-            hours: analytics.calculateHourAnalytics(activityInfos)
+            hours: {
+                allTime: hourAnalytics.allTime(activityInfos),
+                recent: hourAnalytics.recent(activityInfos)
+            }
         }))
         .catch((err) => res.render('errors/athlete', { err: err }));
 });

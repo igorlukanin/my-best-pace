@@ -1,15 +1,9 @@
-<!--<pre><%- JSON.stringify(@hours, null, 2); %></pre>-->
-
 <svg class="chart chart_hours"></svg>
 
 <script>
-    var data = <%- JSON.stringify(@hours); %>;
+    var hourData = <%- JSON.stringify(@hours); %>;
 
-    var max = data.reduce(function(max, value) {
-        return max > value ? max : value;
-    }, Number.MIN_VALUE);
-
-    var width = 500,
+    var width = 400,
         height = width,
         centerX = width / 2,
         centerY = height / 2,
@@ -32,7 +26,7 @@
 
     chart.append("path").attr("d", innerArc);
 
-    var getOuterDot = function(d, i) {
+    var getOuterDot = function(d, i, max) {
         var radius = innerRadius + (outerRadius - innerRadius) * d[i] / max;
         var angle = 2 * Math.PI / d.length * i + Math.PI / d.length - Math.PI / 2;
 
@@ -44,11 +38,18 @@
             .y(function(d) { return d.y; })
             .interpolate("basis-closed");
 
-    var lineData = data.map(function(d, i) { return getOuterDot(data, i); });
 
-    chart.append("path")
-            .attr("d", line(lineData))
-            .attr("stroke-width", 2)
-            .attr("stroke", "red")
-            .attr("fill", "none");
+    var drawHourCurve = function(data, color) {
+        var max = data.reduce(function(max, value) { return max > value ? max : value; }, Number.MIN_VALUE);
+        var lineData = data.map(function(d, i) { return getOuterDot(data, i, max); });
+
+        chart.append("path")
+                .attr("d", line(lineData))
+                .attr("stroke-width", 2)
+                .attr("stroke", color)
+                .attr("fill", "none");
+    };
+
+    drawHourCurve(hourData.allTime, "pink");
+    drawHourCurve(hourData.recent, "red");
 </script>
