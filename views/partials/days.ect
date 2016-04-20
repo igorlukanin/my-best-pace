@@ -1,0 +1,55 @@
+<svg class="chart chart_days"></svg>
+
+<script>
+    var dayData = <%- JSON.stringify(@days); %>;
+
+    var width = 400,
+        height = width,
+        centerX = width / 2,
+        centerY = height / 2,
+        innerRadius = width / 4,
+        outerRadius = width / 2,
+        thickness = 1;
+
+    var innerArc = d3.svg.arc()
+            .innerRadius(innerRadius - thickness)
+            .outerRadius(innerRadius)
+            .startAngle(0)
+            .endAngle(2 * Math.PI);
+
+    var chart = d3
+            .select('.chart_days')
+            .attr('width', width)
+            .attr('height', height)
+            .append("g")
+            .attr("transform", "translate(" + centerX + "," + centerY + ")");
+
+    chart.append("path").attr("d", innerArc);
+
+    var getOuterDot = function(d, i, max) {
+        var radius = innerRadius + (outerRadius - innerRadius) * d[i] / max;
+        var angle = 2 * Math.PI / d.length * i + Math.PI / d.length - Math.PI / 2;
+
+        return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+    };
+
+    var line = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate("basis-closed");
+
+
+    var drawHourCurve = function(data, color) {
+        var max = data.reduce(function(max, value) { return max > value ? max : value; }, Number.MIN_VALUE);
+        var lineData = data.map(function(d, i) { return getOuterDot(data, i, max); });
+
+        chart.append("path")
+                .attr("d", line(lineData))
+                .attr("stroke-width", 2)
+                .attr("stroke", color)
+                .attr("fill", "none");
+    };
+
+    drawHourCurve(dayData.allTime, "lightblue");
+    drawHourCurve(dayData.recent, "blue");
+</script>

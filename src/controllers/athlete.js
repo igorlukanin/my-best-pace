@@ -3,7 +3,8 @@ var Promise = require('promise'),
 
     athletes = require('../models/athlete'),
     analytics = require('../analytics');
-    hourAnalytics = require('../analytics/hours');
+    hourAnalytics = require('../analytics/hours'),
+    dayAnalytics = require('../analytics/days');
 
 
 router.get('/:id', (req, res) => {
@@ -20,6 +21,10 @@ router.get('/:id', (req, res) => {
             hours: {
                 allTime: hourAnalytics.allTime(activityInfos),
                 recent: hourAnalytics.recent(activityInfos)
+            },
+            days: {
+                allTime: dayAnalytics.allTime(activityInfos),
+                recent: dayAnalytics.recent(activityInfos)
             }
         }))
         .catch((err) => res.render('errors/athlete', { err: err }));
