@@ -17,7 +17,7 @@
     "moment": "^2.11.1",
     "promise": "^7.1.1",
     "purecss": "^0.6.0",
-    "rethinkdb": "^2.2.1",
+    "rethinkdb": "~2.2.1",
     "runkeeper-js": "igorlukanin/runkeeper-js",
     "strava-v3": "igorlukanin/node-strava-v3",
     "traceback": "^0.3.1"

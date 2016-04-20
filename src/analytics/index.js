@@ -233,10 +233,5 @@ var calculateData = (athlete, activities) => {
 
 module.exports = {
     calculate: calculateData,
-
-    // For testing:
-    calculateDistanceGroup: calculateDistanceGroup,
-    calculateDateGroup: calculateDateGroup,
-    calculateDateStats: calculateDateStats,
-    calculatePace: calculatePace
+    calculateHourAnalytics: require('./hours')
 };

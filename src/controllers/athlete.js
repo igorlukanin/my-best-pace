@@ -2,7 +2,7 @@ var Promise = require('promise'),
     router = require('express').Router(),
 
     athletes = require('../models/athlete'),
-    analytics = require('../util/analytics');
+    analytics = require('../analytics');
 
 
 router.get('/:id', (req, res) => {
@@ -15,7 +15,8 @@ router.get('/:id', (req, res) => {
         .all([ athleteInfo, activityInfos ])
         .then(([ athleteInfo, activityInfos ]) => res.render('athlete', {
             athlete: athleteInfo,
-            analytics: analytics.calculate(athleteInfo, activityInfos)
+            analytics: analytics.calculate(athleteInfo, activityInfos),
+            hours: analytics.calculateHourAnalytics(activityInfos)
         }))
         .catch((err) => res.render('errors/athlete', { err: err }));
 });
