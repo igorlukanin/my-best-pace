@@ -12,7 +12,7 @@ var options = {
 };
 
 
-var connect = function() {
+var connect = () => {
     var c = r.connect(options);
 
     if (process.env.NODE_ENV == 'test') {
@@ -23,35 +23,31 @@ var connect = function() {
 };
 
 
-var dropAndCreateForTests = function(conn) {
-    return conn.then(function(c) {
-        return new Promise(function(resolve, reject) {
-            r.dbDrop(options.db).run(c, function(err) {
-                // It doesn't matter whether database existed or not, so ignore 'err'
-                r.dbCreate(options.db).run(c, function(err) {
+var dropAndCreateForTests = (conn) => conn.then((c) => new Promise((resolve, reject) => {
+    r.dbDrop(options.db).run(c, () => {
+        // It doesn't matter whether database existed or not, so ignore 'err'
+        r.dbCreate(options.db).run(c, (err) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                r.db(options.db).wait().run(c);
+
+                r.expr(tables).forEach(
+                    r.db(options.db).tableCreate(r.row)
+                ).run(c, (err) => {
                     if (err) {
                         reject(err);
                     }
                     else {
-                        r.db(options.db).wait().run(c);
-
-                        r.expr(tables).forEach(
-                            r.db(options.db).tableCreate(r.row)
-                        ).run(c, function(err) {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                r.expr(tables).forEach(r.db(options.db).table(r.row).wait()).run(c);
-                                resolve(c);
-                            }
-                        });
+                        r.expr(tables).forEach(r.db(options.db).table(r.row).wait()).run(c);
+                        resolve(c);
                     }
                 });
-            });
+            }
         });
     });
-};
+}));
 
 
 module.exports = {
@@ -59,6 +55,4 @@ module.exports = {
     c: connect()
 };
 
-tables.forEach(function(table) {
-    module.exports[table] = r.table(table);
-});
+tables.forEach((table) => module.exports[table] = r.table(table));

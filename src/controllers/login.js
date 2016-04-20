@@ -5,17 +5,11 @@ var router    = require('express').Router(),
     strava    = require('../util/api/strava');
 
 
-var handleLoginError = function(res, service) {
-    res.render('errors/login', {
-        service: service
-    });
-};
+var handleLoginError = (res, service) => res.render('errors/login', { service: service });
 
-router.get('/runkeeper', function(req, res) {
-    res.redirect(runkeeper.getOAuthRedirectUrl());
-});
+router.get('/runkeeper', (req, res) => res.redirect(runkeeper.getOAuthRedirectUrl()));
 
-router.get('/runkeeper/complete', function(req, res) {
+router.get('/runkeeper/complete', (req, res) => {
     var code = req.query.code,
         service = 'runkeeper';
 
@@ -27,23 +21,14 @@ router.get('/runkeeper/complete', function(req, res) {
             .loadOAuthAccessToken(code)
             .then(runkeeper.loadAthleteInfo)
             .then(athletes.create)
-            .then(function(athleteId) {
-                res.redirect('/athletes/' + athleteId);
-            }, function(err) {
-                handleLoginError(err, service);
-            });
+            .then((athleteId) => res.redirect('/athletes/' + athleteId))
+            .catch((err) => handleLoginError(err, service));
     }
 });
 
-router.get('/runkeeper/disconnect', function(req, res) {
-    // TODO: Implement
-});
+router.get('/strava', (req, res) => res.redirect(strava.getOAuthRedirectUrl()));
 
-router.get('/strava', function(req, res) {
-    res.redirect(strava.getOAuthRedirectUrl());
-});
-
-router.get('/strava/complete', function(req, res) {
+router.get('/strava/complete', (req, res) => {
     var code = req.query.code,
         service = 'strava';
 
@@ -55,11 +40,8 @@ router.get('/strava/complete', function(req, res) {
             .loadOAuthAccessToken(code)
             .then(strava.loadAthleteInfo)
             .then(athletes.create)
-            .then(function(athleteId) {
-                res.redirect('/athletes/' + athleteId);
-            }, function(err) {
-                handleLoginError(err, service);
-            });
+            .then((athleteId) => res.redirect('/athletes/' + athleteId))
+            .catch((err) => handleLoginError(err, service));
     }
 });
 

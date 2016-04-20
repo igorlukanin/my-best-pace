@@ -15,7 +15,7 @@ var distanceGroups = {
     minimumActivityCountPerDistance = 3;
 
 
-var calculateDateStats = function(activities) {
+var calculateDateStats = (activities) => {
     var stats = {
         min_timestamp: 0,
         max_timestamp: 0,
@@ -26,7 +26,7 @@ var calculateDateStats = function(activities) {
         return stats;
     }
 
-    activities.forEach(function(activity) {
+    activities.forEach((activity) => {
         if (stats.min_timestamp == 0 || stats.max_timestamp == 0) {
             stats.min_timestamp = calculateDateGroup(activity);
             stats.max_timestamp = activity.start_timestamp;
@@ -42,7 +42,7 @@ var calculateDateStats = function(activities) {
 };
 
 
-var calculateDateGroup = function(activity) {
+var calculateDateGroup = (activity) => {
     var date = new Date(1000 * activity.start_timestamp);
     var month = Math.floor(date.getMonth() / 1) * 1;
     var firstDayOfMonth = new Date(date.getFullYear(), month, 1);
@@ -51,7 +51,7 @@ var calculateDateGroup = function(activity) {
 };
 
 
-var calculateDistanceGroup = function(activity) {
+var calculateDistanceGroup = (activity) => {
     for (var name in distanceGroups) {
         if (distanceGroups.hasOwnProperty(name) && name != 'all' &&
             distanceGroups[name][0] <= activity.distance_km &&
@@ -63,12 +63,10 @@ var calculateDistanceGroup = function(activity) {
 };
 
 
-var calculatePace = function(activity) {
-    return activity.time_m / activity.distance_km;
-};
+var calculatePace = (activity) => activity.time_m / activity.distance_km;
 
 
-var calculateAwards = function(activities) {
+var calculateAwards = (activities) => {
     var awards = {
         hm_count: 0,
         ytd_hm_count: 0,
@@ -78,7 +76,7 @@ var calculateAwards = function(activities) {
         ytd_total_running_days: 0
     };
 
-    activities.forEach(function(activity) {
+    activities.forEach((activity) => {
         var firstDayOfYearTimestamp = new Date(new Date().getFullYear(), 0, 1) / 1000;
 
         if (activity.distance_km >= 21.0975) {
@@ -108,7 +106,7 @@ var calculateAwards = function(activities) {
 };
 
 
-var calculateData = function(athlete, activities) {
+var calculateData = (athlete, activities) => {
     var dateStats = calculateDateStats(activities),
         distanceStats = {};
 
@@ -123,52 +121,51 @@ var calculateData = function(athlete, activities) {
         }
     }
 
-    activities = activities.filter(function(activity) {
-        return activity.distance_km > 0
-    }).map(function(activity) {
-        activity.date_group = calculateDateGroup(activity);
-        activity.distance_group = calculateDistanceGroup(activity);
-        activity.pace_m_km = calculatePace(activity);
-        return activity;
-    }).filter(function(activity) {
-        return activity.pace_m_km > 2  // 1 km world record is 2:11.96
-            && activity.pace_m_km < 8; // 6 km/h is walking, not running
-    }).map(function(activity) {
-        var distanceCell = distanceStats[activity.distance_group];
-        distanceCell.count++;
-
-        if (distanceCell.date_groups[activity.date_group] == undefined) {
-            distanceCell.date_groups[activity.date_group] = {
-                count: 0,
-                min_pace: 0,
-                max_pace: 0,
-                mean_pace: 0,
-                activities: []
-            };
-        }
-
-        distanceCell.date_groups[activity.date_group].count++;
-        distanceCell.date_groups[activity.date_group].activities.push(activity);
-
-        var allCell = distanceStats.all;
-        allCell.count++;
-
-        if (allCell.date_groups[activity.date_group] == undefined) {
-            allCell.date_groups[activity.date_group] = {
-                count: 0,
-                min_pace: 0,
-                max_pace: 0,
-                mean_pace: 0,
-                activities: []
-            };
-        }
-
-        allCell.date_groups[activity.date_group].count++;
-        allCell.date_groups[activity.date_group].activities.push(activity);
-
-        delete activity.raw_data;
-        return activity;
-    });
+    activities = activities
+        .filter((activity) => activity.distance_km > 0)
+        .map((activity) => {
+            activity.date_group = calculateDateGroup(activity);
+            activity.distance_group = calculateDistanceGroup(activity);
+            activity.pace_m_km = calculatePace(activity);
+            return activity;
+        })
+        .filter((activity) => activity.pace_m_km > 2 && activity.pace_m_km < 8) // 1 km world record is 2:11.96, 6 km/h is walking, not running
+        .map((activity) => {
+            var distanceCell = distanceStats[activity.distance_group];
+            distanceCell.count++;
+    
+            if (distanceCell.date_groups[activity.date_group] == undefined) {
+                distanceCell.date_groups[activity.date_group] = {
+                    count: 0,
+                    min_pace: 0,
+                    max_pace: 0,
+                    mean_pace: 0,
+                    activities: []
+                };
+            }
+    
+            distanceCell.date_groups[activity.date_group].count++;
+            distanceCell.date_groups[activity.date_group].activities.push(activity);
+    
+            var allCell = distanceStats.all;
+            allCell.count++;
+    
+            if (allCell.date_groups[activity.date_group] == undefined) {
+                allCell.date_groups[activity.date_group] = {
+                    count: 0,
+                    min_pace: 0,
+                    max_pace: 0,
+                    mean_pace: 0,
+                    activities: []
+                };
+            }
+    
+            allCell.date_groups[activity.date_group].count++;
+            allCell.date_groups[activity.date_group].activities.push(activity);
+    
+            delete activity.raw_data;
+            return activity;
+        });
 
     var distanceRatios = [];
 

@@ -9,127 +9,72 @@ var Promise = require('promise'),
     };
 
 
-var createUniqueId = function(entity) {
-    return entity.service + '_' + entity.service_id;
-};
+var createUniqueId = (entity) => entity.service + '_' + entity.service_id;
 
+var createEntityId = (entity) => db.c.then((c) => db.r.uuid(createUniqueId(entity)).run(c));
 
-var createEntityId = function(entity) {
-    return db.c.then(function(c) {
-        return db.r.uuid(createUniqueId(entity)).run(c);
-    });
-};
+var createEntityIds = (entities) => db.c.then((c) => db.r.expr(entities.map(createUniqueId)).map((row) => db.r.uuid(row)).run(c));
 
-
-var createEntityIds = function(entities) {
-    return db.c.then(function(c) {
-        return db.r.expr(entities.map(createUniqueId)).map(function(row) {
-            return db.r.uuid(row);
-        }).run(c);
-    });
-};
-
-
-var prepareForInsert = function(entity, id) {
+var prepareForInsert = (entity, id) => {
     entity.id = id;
     entity.creation_date = db.r.now();
 
     return entity;
 };
 
+var prepareForInsertArray = (entities, ids) => entities.map((entity, i) => prepareForInsert(entity, ids[i]));
 
-var prepareForInsertArray = function(entities, ids) {
-    return entities.map(function(entity, i) {
-        return prepareForInsert(entity, ids[i]);
-    });
-};
+var createAthlete = (athleteInfo) => db.c.then((c) => createEntityId(athleteInfo).then((athleteId) => {
+    var athleteForInsert = prepareForInsert(athleteInfo, athleteId);
 
+    return db.athletes
+        .insert(athleteForInsert, {conflict: 'update'}).run(c)
+        .then(() => athleteId);
+}));
 
-var createAthlete = function(athleteInfo) {
-    return db.c.then(function(c) {
-        return createEntityId(athleteInfo)
-            .then(function(athleteId) {
-                var athleteForInsert = prepareForInsert(athleteInfo, athleteId);
-
-                return db.athletes
-                    .insert(athleteForInsert, { conflict: 'update' }).run(c)
-                    .then(function() {
-                        return athleteId;
-                    });
+var loadAthlete = (athleteId) => db.c.then((c) => db.athletes
+    .get(athleteId).run(c)
+    .then((athleteInfo) => {
+        if (athleteInfo == null) {
+            return Promise.reject({
+                message: 'Athlete not found',
+                athleteId: athleteId
             });
-    });
-};
+        }
+    
+        return athleteInfo;
+    }));
 
-
-var loadAthlete = function(athleteId) {
-    return db.c.then(function(c) {
-        return db.athletes
-            .get(athleteId).run(c)
-            .then(function(athleteInfo) {
-                if (athleteInfo == null) {
-                    return Promise.reject({
-                        message: 'Athlete not found',
-                        athleteId: athleteId
-                    });
-                }
-
-                return athleteInfo;
+var createActivities = (athleteInfo, activityInfos) => db.c.then((c) => createEntityIds(activityInfos)
+    .then((activityIds) => {
+        var activitiesForInsert = prepareForInsertArray(activityInfos, activityIds),
+            activitiesForInsertWithAthleteId = activitiesForInsert.map((activityInfo) => {
+                activityInfo.athlete_id = athleteInfo.id;
+    
+                return activityInfo;
             });
-    });
-};
 
-
-var createActivities = function(athleteInfo, activityInfos) {
-    return db.c.then(function(c) {
-        return createEntityIds(activityInfos)
-            .then(function(activityIds) {
-                var activitiesForInsert = prepareForInsertArray(activityInfos, activityIds),
-                    activitiesForInsertWithAthleteId = activitiesForInsert.map(function(activityInfo) {
-                    activityInfo.athlete_id = athleteInfo.id;
-
-                    return activityInfo;
-                });
-
-                return db.activities
-                    .insert(activitiesForInsertWithAthleteId, { conflict: 'replace' }).run(c)
-                    .then(function() {
-                        return activityIds;
-                    });
-            });
-    });
-};
-
-
-var loadActivities = function(athleteInfo) {
-    return db.c.then(function(c) {
         return db.activities
-            .filter({ athlete_id: athleteInfo.id }).run(c)
-            .then(function(cursor) {
-                return cursor.toArray();
-            });
-    });
-};
+            .insert(activitiesForInsertWithAthleteId, { conflict: 'replace' }).run(c)
+            .then(() => activityIds);
+    }));
 
+var loadActivities = (athleteInfo) => db.c.then((c) => db.activities
+    .filter({ athlete_id: athleteInfo.id }).run(c)
+    .then((cursor) => cursor.toArray()));
 
-var feedAthletesToBeUpdated = function() {
-    return db.c.then(function (c) {
-        return db.athletes.changes({ includeInitial: true }).run(c);
-    });
-};
+var feedAthletesToBeUpdated = () => db.c.then((c) => db.athletes.changes({ includeInitial: true }).run(c));
 
-
-var updateAthleteActivities = function(athleteInfo) {
+var updateAthleteActivities = (athleteInfo) => {
     var client = clients[athleteInfo.service];
 
     return client.loadNewActivitiesAndUpdateAthlete(athleteInfo)
-        .then(function(activitiesPack) {
+        .then((activitiesPack) => {
             log.athleteInfo(activitiesPack.athleteInfo, activitiesPack.activityInfos.length + ' new activities');
 
             return Promise.all([
                 createActivities(activitiesPack.athleteInfo, activitiesPack.activityInfos),
-                db.c.then(function(c) {
-                    return db.athletes.get(athleteInfo.id).replace(activitiesPack.athleteInfo).run(c);
-                })
+                db.c.then((c) => db.athletes.get(athleteInfo.id).replace(activitiesPack.athleteInfo).run(c))
             ]);
         });
 };

@@ -3,13 +3,10 @@
   "version": "0.0.1",
   "author": "Igor Lukanin",
   "scripts": {
-    "website": "NODE_ENV=production node src/website.js",
-    "replenisher": "NODE_ENV=production node src/replenisher-ctrl.js",
-    "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --recursive ./test/"
+    "website": "NODE_ENV=production node --harmony_destructuring src/website.js",
+    "replenisher": "NODE_ENV=production node --harmony_destructuring src/replenisher-ctrl.js"
   },
   "dependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^5.2.0",
     "colorbrewer": "^1.0.0",
     "compression": "^1.6.0",
     "config": "^1.16.0",
@@ -17,11 +14,9 @@
     "d3": "^3.5.14",
     "ect": "^0.5.9",
     "express": "^4.13.3",
-    "mocha": "^2.4.5",
     "moment": "^2.11.1",
     "promise": "^7.1.1",
     "purecss": "^0.6.0",
-    "regression": "^1.2.1",
     "rethinkdb": "^2.2.1",
     "runkeeper-js": "igorlukanin/runkeeper-js",
     "strava-v3": "igorlukanin/node-strava-v3",

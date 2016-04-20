@@ -6,56 +6,41 @@ var runkeeper = require('runkeeper-js'),
     name = 'runkeeper';
 
 
-var setClientId = function(value) {
-    client.client_id = value;
-};
+var setClientId = (value) => client.client_id = value;
 
+var setClientSecret = (value) => client.client_secret = value;
 
-var setClientSecret = function(value) {
-    client.client_secret = value;
-};
+var setAccessToken = (value) => client.access_token = value;
 
+var setRedirectUri = (value) => client.redirect_uri = value;
 
-var setAccessToken = function(value) {
-    client.access_token = value;
-};
-
-
-var setRedirectUri = function(value) {
-    client.redirect_uri = value;
-};
-
-
-var configure = function() {
+var configure = () => {
     setClientId(config.get('runkeeper.client_id'));
     setClientSecret(config.get('runkeeper.client_secret'));
     setRedirectUri(config.get('runkeeper.redirect_uri'));
 };
 
 
-var getOAuthRedirectUrl = function() {
-    return client.auth_url +
-        '?client_id=' + client.client_id +
-        '&response_type=code' +
-        '&redirect_uri=' + client.redirect_uri;
-};
+var getOAuthRedirectUrl = () =>
+    client.auth_url +
+    '?client_id=' + client.client_id +
+    '&response_type=code' +
+    '&redirect_uri=' + client.redirect_uri;
 
 
-var loadOAuthAccessToken = function(code) {
-    return new Promise(function(resolve, reject) {
-        client.getNewToken(code, function(err, result) {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(result);
-            }
-        });
+var loadOAuthAccessToken = (code) => new Promise((resolve, reject) => {
+    client.getNewToken(code, function(err, result) {
+        if (err) {
+            reject(err);
+        }
+        else {
+            resolve(result);
+        }
     });
-};
+});
 
 
-var extractAthleteInfo = function(data, userData, accessToken) {
+var extractAthleteInfo = (data, userData, accessToken) => {
     return {
         full_name: data.name,
         avatar_url: data.medium_picture,
@@ -67,7 +52,7 @@ var extractAthleteInfo = function(data, userData, accessToken) {
 };
 
 
-var loadAthleteInfo = function(accessToken) {
+var loadAthleteInfo = (accessToken) => {
     setAccessToken(accessToken);
 
     return new Promise(function(resolve, reject) {
@@ -92,19 +77,19 @@ var loadAthleteInfo = function(accessToken) {
 
 // Unfortunately, there's no way to distinguish between manually entered activities
 // and those tracked via GPS. Both have { source: 'RunKeeper', entry_mode: 'API' }
-var filterActivityInfo = function(data) {
-    return data.type == 'Running'
-        && data.source == 'RunKeeper'
-        && data.entry_mode == 'API'
-        && data.tracking_mode == 'outdoor';
-};
+var filterActivityInfo = (data) =>
+    data.type == 'Running' &&
+    data.source == 'RunKeeper' &&
+    data.entry_mode == 'API' &&
+    data.tracking_mode == 'outdoor';
 
 
-var extractActivityInfo = function(data) {
+var extractActivityInfo = (data) => {
     return {
         distance_km: data.total_distance / 1000,
         time_m: data.duration / 60,
         start_timestamp: new Date(data.start_time + ' GMT+00:00').getTime() / 1000,
+        elevation_grade: data.climb ? data.climb / data.total_distance : 0,
         service: name,
         service_id: data.uri.substr(data.uri.indexOf('/fitnessActivities/')),
         raw_data: data
@@ -112,13 +97,13 @@ var extractActivityInfo = function(data) {
 };
 
 
-var loadNewActivitiesAndUpdateAthlete = function(athleteInfo) {
+var loadNewActivitiesAndUpdateAthlete = (athleteInfo) => {
     var activityCount = athleteInfo.activity_count ? athleteInfo.activity_count : 0;
 
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
         setAccessToken(athleteInfo.access_token);
 
-        client.fitnessActivityFeed(function(err, result) {
+        client.fitnessActivityFeed((err, result) => {
             if (err) {
                 reject(err);
             }
@@ -140,9 +125,7 @@ var loadNewActivitiesAndUpdateAthlete = function(athleteInfo) {
                 }
                 // Not all new activities loaded, loading...
                 else {
-                    client.fitnessActivityFeed({
-                        pageSize: delta
-                    }, function(err, result) {
+                    client.fitnessActivityFeed({ pageSize: delta }, (err, result) => {
                         if (err) {
                             reject(err);
                         }
@@ -154,10 +137,7 @@ var loadNewActivitiesAndUpdateAthlete = function(athleteInfo) {
                                 .filter(filterActivityInfo)
                                 .map(extractActivityInfo);
 
-                            resolve({
-                                athleteInfo: athleteInfo,
-                                activityInfos: activityInfos
-                            });
+                            resolve({ athleteInfo, activityInfos });
                         }
                     });
                 }

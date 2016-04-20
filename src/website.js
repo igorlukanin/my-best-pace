@@ -9,13 +9,8 @@ var compression = require('compression'),
     port = config.get('server.port');
 
 
-process.on('uncaughtException', function(err) {
-    console.error(err.stack);
-});
-
-require('promise/lib/rejection-tracking').enable({
-    allRejections: true
-});
+process.on('uncaughtException', (err) => console.error(err.stack));
+require('promise/lib/rejection-tracking').enable({ allRejections: true });
 
 
 express()
@@ -23,7 +18,6 @@ express()
     .use('/static/css/pure', express.static('node_modules/purecss/build'))
     .use('/static/js/colorbrewer', express.static('node_modules/colorbrewer'))
     .use('/static/js/d3', express.static('node_modules/d3'))
-    .use('/static/js/regression', express.static('node_modules/regression/src'))
 
     .use(compression())
     .use(controllers)
@@ -34,6 +28,4 @@ express()
         root: __dirname + '/../views'
     }).render)
 
-    .listen(port, function() {
-        log.appState('website', 'started at port ' + port);
-    });
+    .listen(port, () => log.appState('website', 'started at port ' + port));

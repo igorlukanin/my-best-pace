@@ -113,6 +113,7 @@ var extractActivityInfo = function(data) {
         distance_km: data.distance / 1000,
         time_m: data.moving_time / 60,
         start_timestamp: moment(data.start_date).unix(),
+        elevation_grade: data.total_elevation_gain / data.distance,
         service: name,
         service_id: data.id,
         raw_data: data

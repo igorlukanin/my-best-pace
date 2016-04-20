@@ -1,23 +1,18 @@
-var childProcess      = require('child_process'),
-    config            = require('config'),
+var childProcess = require('child_process'),
+    config = require('config'),
 
-    log               = require('./util/log'),
+    log = require('./util/log'),
 
     restartIntervalMs = config.get('replenisher-ctrl.restart_interval_ms');
 
 
-process.on('uncaughtException', function(err) {
-    console.error(err.stack);
-});
-
-require('promise/lib/rejection-tracking').enable({
-    allRejections: true
-});
+process.on('uncaughtException', (err) => console.error(err.stack));
+require('promise/lib/rejection-tracking').enable({ allRejections: true });
 
 
 var children = [];
 
-var restartChild = function() {
+var restartChild = () => {
     // Start new child
     children.push(childProcess.fork(__dirname + '/replenisher'));
 
