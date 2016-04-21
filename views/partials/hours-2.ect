@@ -1,0 +1,74 @@
+<svg class="chart chart_hours_00_12"></svg>
+<svg class="chart chart_hours_12_24"></svg>
+
+<script>
+    var hourData = <%- JSON.stringify(@hours); %>;
+    var hourData_00_12 = {
+        allTime: hourData.allTime.slice(0, hourData.allTime.length / 2),
+        recent: hourData.recent.slice(0, hourData.recent.length / 2)
+    };
+    var hourData_12_24 = {
+        allTime: hourData.allTime.slice(hourData.allTime.length / 2),
+        recent: hourData.recent.slice(hourData.recent.length / 2)
+    };
+
+    var width = 200,
+        height = width,
+        centerX = width / 2,
+        centerY = height / 2,
+        innerRadius = width / 4,
+        outerRadius = width / 2,
+        thickness = 1;
+
+    var innerArc = d3.svg.arc()
+            .innerRadius(innerRadius - thickness)
+            .outerRadius(innerRadius)
+            .startAngle(0)
+            .endAngle(2 * Math.PI);
+
+    var chart = d3
+            .select('.chart_hours_00_12')
+            .attr('width', width)
+            .attr('height', height)
+            .append("g")
+            .attr("transform", "translate(" + centerX + "," + centerY + ")");
+
+    var chart2 = d3
+            .select('.chart_hours_12_24')
+            .attr('width', width)
+            .attr('height', height)
+            .append("g")
+            .attr("transform", "translate(" + centerX + "," + centerY + ")");
+
+    chart.append("path").attr("d", innerArc);
+    chart2.append("path").attr("d", innerArc);
+
+    var getOuterDot = function(d, i, max) {
+        var radius = innerRadius + (outerRadius - innerRadius) * d[i] / max;
+        var angle = 2 * Math.PI / d.length * i + Math.PI / d.length - Math.PI / 2;
+
+        return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+    };
+
+    var line = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate("basis-closed");
+
+    var drawHourCurve = function(chart, data, color) {
+        var max = data.reduce(function(max, value) { return max > value ? max : value; }, Number.MIN_VALUE);
+        var lineData = data.map(function(d, i) { return getOuterDot(data, i, max); });
+
+        chart.append("path")
+                .attr("d", line(lineData))
+                .attr("stroke-width", 2)
+                .attr("stroke", color)
+                .attr("fill", "none");
+    };
+
+    drawHourCurve(chart, hourData_00_12.allTime, "pink");
+    drawHourCurve(chart, hourData_00_12.recent, "red");
+
+    drawHourCurve(chart2, hourData_12_24.allTime, "pink");
+    drawHourCurve(chart2, hourData_12_24.recent, "red");
+</script>
