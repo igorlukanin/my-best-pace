@@ -25,6 +25,11 @@
   },
   "analytics": {
     "recent_period_ms": 7776000000,
-    "recent_period_ms_description": "90 days"
+    "recent_period_ms_description": "90 days",
+    "gap_period_ms": 2678400000,
+    "gap_period_ms_description": "31 days",
+    "period_ms": 2592000000,
+    "period_ms_description": "30 days",
+    "min_period_activity_count": 3
   }
 }

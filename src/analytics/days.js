@@ -7,7 +7,7 @@ const getUtcDay = (activity) => (new Date(activity.start_timestamp * 1000).getUT
 
 const toLocalDay = (utcDay) => utcDay; // TODO: Fix this
 
-const calculate = (activities) =>activities
+const calculate = (activities) => activities
     .reduce((days, activity) => {
         const day = toLocalDay(getUtcDay(activity));
         days[day]++;

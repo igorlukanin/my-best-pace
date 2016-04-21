@@ -2,7 +2,8 @@ var Promise = require('promise'),
     router = require('express').Router(),
 
     athletes = require('../models/athlete'),
-    analytics = require('../analytics');
+    analytics = require('../analytics'),
+    paceAnalytics = require('../analytics/pace'),
     hourAnalytics = require('../analytics/hours'),
     dayAnalytics = require('../analytics/days');
 
@@ -25,9 +26,10 @@ router.get('/:id', (req, res) => {
             days: {
                 allTime: dayAnalytics.allTime(activityInfos),
                 recent: dayAnalytics.recent(activityInfos)
-            }
+            },
+            pace: paceAnalytics.allTime(athleteInfo, activityInfos)
         }))
-        .catch((err) => res.render('errors/athlete', { err: err }));
+        // .catch((err) => res.render('errors/athlete', { err: err }));
 });
 
 
