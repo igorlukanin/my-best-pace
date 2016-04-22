@@ -30,6 +30,7 @@
     "gap_period_ms_description": "31 days",
     "period_ms": 2592000000,
     "period_ms_description": "30 days",
+    "max_period_activity_count": 10,
     "min_period_activity_count": 3
   }
 }

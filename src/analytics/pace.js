@@ -242,10 +242,12 @@ const asPeriods = (periods, activity) => {
 
     const period = config.get('analytics.period_ms') / 1000;
     const gap = config.get('analytics.gap_period_ms') / 1000;
+    const limit = config.get('analytics.max_period_activity_count');
 
     if (lastActivity != undefined) {
         if (activity.start_timestamp - firstActivity.start_timestamp > period ||
-            activity.start_timestamp - lastActivity.start_timestamp > gap
+            activity.start_timestamp - lastActivity.start_timestamp > gap ||
+            lastPeriod.length > limit
         ) {
             periods.push([]);
         }
