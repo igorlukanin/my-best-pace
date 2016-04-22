@@ -22,27 +22,16 @@
             .range([height, 0])
             .domain([ paceData.range.pace[0], paceData.range.pace[1] + 1 ]);
 
-    var line = d3.svg.line()
-            .interpolate('basis');
+    var area = d3.svg.area()
+            .interpolate('basis')
+            .x(function(point) { return x(point.timestamp); })
+            .y0(function(point) { return y(point.pace); })
+            .y1(function(point) { return y(point.pace) - 5 * point.count; });
 
     paceData.periods.forEach(function(points) {
-        var topLine = points.map(function(point) { return [ x(point.timestamp), y(point.pace) - point.count * 5 ]});
-        var bottomLine = points.map(function(point) { return [ x(point.timestamp), y(point.pace) ]});
-
-        chart
-                .append('path')
-                .datum(topLine)
-                .attr('class', 'line')
-                .attr('d', line)
-                .attr('stroke', 'green')
-                .attr('fill', 'none');
-
-        chart
-                .append('path')
-                .datum(bottomLine)
-                .attr('class', 'line')
-                .attr('d', line)
-                .attr('stroke', 'green')
-                .attr('fill', 'none');
+        chart.append("path")
+                .datum(points)
+                .attr("d", area)
+                .attr('fill', 'green');
     });
 </script>
