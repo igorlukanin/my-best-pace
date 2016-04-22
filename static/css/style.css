@@ -25,40 +25,6 @@ body {
     margin-top: 3em;
 }
 
-.login {
-    text-align: center;
-    font-size: 24pt;
-    margin-top: 1em;
-}
-
-.login_block__coming_soon {
-    cursor: default;
-}
-
-.login_block__strava {
-    background-color: #fc4c02;
-}
-
-.login_block__runkeeper {
-    background-color: #2dc9d7;
-}
-
-.login_block__nikeplus {
-    background-color: rgba(203, 52, 0, .4); /* #cb3400 */
-}
-
-.login_block__garmin {
-    background-color: rgba(9, 115, 208, .4); /* #0973d0 */
-}
-
-.login_link__coming_soon {
-    top: 25px;
-}
-
-.login_note__coming_soon {
-
-}
-
 .footer {
     margin-top: 3em;
     text-align: center;
