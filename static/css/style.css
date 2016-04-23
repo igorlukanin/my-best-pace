@@ -3,75 +3,40 @@
 body {
     color: #333;
     font-family: 'Open Sans', sans-serif;
-    font-size: 10pt;
+    font-size: 12pt;
     font-weight: 300;
-    margin: 5em 10em;
+    margin: 2em 0;
 }
 
 .header {
+    border-bottom: solid 1px #eee;
+    padding: .75em 1.25em;
     text-align: center;
 }
 
-.header_title {
-    font-size: 32pt;
-}
-
-.header_subtitle {
-    font-size: 24pt;
-}
-
-.header_cta {
-    font-size: 16pt;
-    margin-top: 3em;
-}
-
-.footer {
-    margin-top: 3em;
-    text-align: center;
-}
-
-.footer_link {
-    color: #666;
-    margin: .5em;
-    text-decoration: none;
-}
-
-.footer_link:hover {
-    color: #444;
-}
-
-.avatar {
-    line-height: 125px;
-    text-align: right;
-}
-
-.avatar-image {
-    border-radius: 50%;
-    border-style: solid;
-    border-width: 0;
-
-    height: 75px;
-    width: 75px;
-
-    vertical-align: middle;
-}
-
-.name-block {
-    font-size: 20pt;
-    line-height: 120px;
-}
-
-.name {
+.header_logo {
     display: inline-block;
-    vertical-align: middle;
-    line-height: normal;
 }
 
-.pure-g-pad > div > * {
-    margin-left: 1rem;
-    margin-right: 1rem;
+.header_logo_title, .header_logo_name {
+    font-weight: 400;
 }
 
-.chart {
-    border: solid 1px #eee;
+.header_tabs {
+    display: inline-block;
+    font-weight: 600;
+}
+
+.header_tabs_tab {
+    display: inline;
+    margin-left: 2em;
+}
+
+.header_tabs_tab_note {
+    font-weight: 300;
+    margin-left: .5em;
+}
+
+.pace_chart {
+    width: 100%;
 }
