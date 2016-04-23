@@ -38,9 +38,14 @@
     };
 
     var createYHairlines = function(options, chart) {
+        var x = options.yAxisAreaWidth,
+            y = 0;
+
+        var group = chart.append('g').attr('transform', t(x, y));
+
         options.paceRange.forEach(function(pace) {
-            chart.append('rect')
-                    .attr('x', options.yAxisAreaWidth)
+            group.append('rect')
+                    .attr('x', 0)
                     .attr('y', options.y(pace))
                     .attr('width', options.xAxisAreaWidth)
                     .attr('height', options.thickness)
@@ -54,10 +59,54 @@
         createYHairlines(options, chart);
     };
 
+    var createXMonths = function(options, chart) {
+        var x = options.yAxisAreaWidth,
+                y = options.height - options.xAxisAreaHeight;
+
+        var group = chart.append('g').attr('transform', t(x, y));
+
+        options.timestampRange.forEach(function(timestamp) {
+            var months = [ 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC' ];
+            var month = months[new Date(1000 * timestamp).getUTCMonth()];
+
+            group.append('text')
+                    .attr('x', options.x(timestamp))
+                    .attr('y', options.textHeight / 2)
+                    .attr('text-anchor', 'middle')
+                    .text(month);
+        });
+    };
+
+    var createXYears = function(options, chart) {
+        var x = options.yAxisAreaWidth,
+            y = options.height - 0.5 * options.xAxisAreaHeight;
+
+        var group = chart.append('g').attr('transform', t(x, y));
+
+        options.timestampRange.forEach(function(timestamp) {
+            var date = new Date(1000 * timestamp);
+
+            if (date.getUTCMonth() == 0) {
+                var year = date.getUTCFullYear();
+
+                group.append('text')
+                        .attr('x', options.x(timestamp))
+                        .attr('y', options.textHeight / 2)
+                        .attr('text-anchor', 'middle')
+                        .text(year);
+            }
+        });
+    };
+
+    var createXAxis = function(options, chart) {
+        createXMonths(options, chart);
+        createXYears(options, chart);
+    };
+
     var options = {
         width: document.getElementById('pace_chart').offsetWidth,
-        height: 600,
-        xAxisAreaHeight: 100,
+        height: 500,
+        xAxisAreaHeight: 50,
         yAxisAreaWidth: 100,
         thickness: 1,
         textHeight: 13
@@ -67,6 +116,10 @@
     options.yAxisAreaHeight = options.height - options.xAxisAreaHeight;
 
     options.paceRange = [ 7, 6, 5, 4, 3 ];
+    options.timestampRange = [ 1461417778 ];
+
+    for (var i = 1; i < 24; ++i) { options.timestampRange.push(options.timestampRange[0] - 2678400 * i); }
+    options.timestampRange.reverse();
 
     var chart = d3
             .select('.pace_chart')
@@ -74,12 +127,13 @@
             .attr('height', options.height);
 
     options.x = d3.scale.linear()
-            .range([0, options.width])
-            .domain([0, 1]);
+            .range([0, options.xAxisAreaWidth])
+            .domain([ options.timestampRange[0], options.timestampRange[options.timestampRange.length - 1] ]);
 
     options.y = d3.scale.linear()
-            .range([options.height, 0])
-            .domain([ 2, 8 ]);
+            .range([options.height - options.xAxisAreaHeight, 0])
+            .domain([ options.paceRange[options.paceRange.length - 1] - 1, options.paceRange[0] + 1 ]);
 
     createYAxes(options, chart);
+    createXAxis(options, chart);
 </script>
