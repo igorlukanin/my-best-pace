@@ -10,6 +10,7 @@ body {
 
 .header {
     border-bottom: solid 1px #eee;
+    margin-bottom: 2em;
     padding: .75em 1.25em;
     text-align: center;
 }

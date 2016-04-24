@@ -32,6 +32,20 @@
         return chart.append('g').attr('transform', t(x, y));
     };
 
+    var link = function(chart, text, url) {
+        return chart.append('text')
+                .text(text)
+                .on('mouseover', function() {
+                    d3.select(this).style({ cursor: 'pointer' })
+                })
+                .on('mouseout', function() {
+                    d3.select(this).style({ cursor: 'inherit' })
+                })
+                .on('click', function() {
+                    window.open(url, '_blank').focus();
+                });
+    };
+
     var createYAxis = function(options, chart, placement) {
         var x = 'right' == placement ? options.width - options.yAxisAreaWidth : 0,
             group = g(chart, x, 0);
@@ -122,12 +136,24 @@
         createXHairlines(options, chart);
     };
 
-    var showXHightlight = function(node, options) {
+    var showXHightlight = function(options, node) {
         d3.select(node).style({ opacity: options.highlightOpacity });
     };
 
-    var hideXHightlight = function(node, options) {
-        d3.select(node).style({ opacity: options.hiddenOpacity });
+    var hideXHightlight = function(options, node) {
+        d3.select(node).style({opacity: options.hiddenOpacity});
+    };
+
+    var createAward = function(options, chart, previous, current) {
+        var group = g(chart, options.yAxisAreaWidth, 0);
+
+        group.append('image')
+                .attr('x', options.x(0.5 * previous[0] + 0.5 * current[0]) - 0.5 * options.awardSize)
+                .attr('y', options.yAxisAreaHeight * options.yAxisOffsetRatio + 0.25 * options.awardSize)
+                .attr('width', options.awardSize)
+                .attr('height', options.awardSize)
+                .attr('fill', '#ddd')
+                .attr('xlink:href', '/static/svg/icon-35-medal.svg');
     };
 
     var getVolumeOffset = function(options, d) {
@@ -137,8 +163,8 @@
     var createHighlightArea = function(options, chart, previous, current) {
         var group = chart.append('g')
                 .style({ opacity: options.hiddenOpacity })
-                .on('mouseover', function() { showXHightlight(this, options); })
-                .on("mouseout", function() { hideXHightlight(this, options); });
+                .on('mouseover', function() { showXHightlight(options, this); })
+                .on("mouseout", function() { hideXHightlight(options, this); });
 
         group.append('rect')
                 .attr('x', options.x(previous[0]))
@@ -158,6 +184,12 @@
                 .attr('y', options.y(0.5 * previous[1] + 0.5 * current[1]) + 2.5 * options.textHeight)
                 .attr('text-anchor', 'middle')
                 .text(formatPace(previous[1]));
+
+        link(group, 'Runner of Spring 2016 (6th Half-Marathon Run), 182 BPM', 'https://www.strava.com/activities/540760757')
+                .attr('x', options.x(0.5 * previous[0] + 0.5 * current[0]))
+                .attr('y', options.yAxisAreaHeight - 3 * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .style({ 'text-decoration': 'underline' });
     };
 
     var createVolumeArea = function(options, chart) {
@@ -194,6 +226,10 @@
             period.reduce(function(previous, current) {
                 if (previous != undefined) {
                     createHighlightArea(options, group, previous, current);
+
+                    if (current[3] == true) {
+                        createAward(options, chart, previous, current);
+                    }
                 }
 
                 return current;
@@ -217,7 +253,8 @@
         volumeRatio: 5,
         textHeight: 13,
         hiddenOpacity: 0,
-        highlightOpacity: 0.75
+        highlightOpacity: 0.75,
+        awardSize: 30
     };
 
     options.xAxisAreaWidth = options.width - 2 * options.yAxisAreaWidth;
@@ -230,8 +267,8 @@
     options.timestampRange.reverse();
 
     options.periods = [
-        [ [1399814578, 5.5, 10], [1402492978, 5.7, 15], [1405171378, 5.3, 10], [1407849778, 5.25, 12], [1410528178, 5.6, 8], [1413206578, 5.2, 15], [1415884978, 5.1, 20], [1418563378, 5.1, 13] ],
-        [ [1437312178, 5.1, 14], [1439990578, 5.3, 22], [1442668978, 5.0, 25], [1445347378, 5.25, 15], [1448025778, 5.2, 10], [1450704178, 5.0, 23], [1453382578, 4.9, 21], [1456060978, 4.7, 17], [1458739378, 4.8, 10], [1461417778, 4.4, 6] ]
+        [ [1399814578, 5.5, 10], [1402492978, 5.7, 15], [1405171378, 5.3, 10, true], [1407849778, 5.25, 12], [1410528178, 5.6, 8, true], [1413206578, 5.2, 15, true], [1415884978, 5.1, 20], [1418563378, 5.1, 13] ],
+        [ [1437312178, 5.1, 14], [1439990578, 5.3, 22], [1442668978, 5.0, 25], [1445347378, 5.25, 15], [1448025778, 5.2, 10], [1450704178, 5.0, 23], [1453382578, 4.9, 21, true], [1456060978, 4.7, 17], [1458739378, 4.8, 10], [1461417778, 4.4, 6] ]
     ];
 
     var chart = d3
