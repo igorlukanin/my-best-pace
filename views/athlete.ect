@@ -66,7 +66,7 @@
         var group = chart.append('g').attr('transform', t(x, y));
 
         options.timestampRange.forEach(function(timestamp) {
-            var months = [ 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC' ];
+            var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
             var month = months[new Date(1000 * timestamp).getUTCMonth()];
 
             group.append('text')
@@ -98,9 +98,33 @@
         });
     };
 
+    var createXHairlines = function(options, chart) {
+        var x = options.yAxisAreaWidth,
+            y = 0,
+            offsetRatio = 0.05;
+
+        var group = chart.append('g').attr('transform', t(x, y));
+
+        options.timestampRange.forEach(function(timestamp) {
+            var date = new Date(1000 * timestamp);
+
+            if (date.getUTCMonth() == 0) {
+                var year = date.getUTCFullYear();
+
+                group.append('rect')
+                        .attr('x', options.x(timestamp))
+                        .attr('y', options.yAxisAreaHeight * offsetRatio)
+                        .attr('width', options.thickness)
+                        .attr('height', options.yAxisAreaHeight * (1 - 2 * offsetRatio))
+                        .attr('fill', '#eee');
+            }
+        });
+    };
+
     var createXAxis = function(options, chart) {
         createXMonths(options, chart);
         createXYears(options, chart);
+        createXHairlines(options, chart);
     };
 
     var options = {
