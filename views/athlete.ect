@@ -17,16 +17,17 @@
 <svg id="pace_chart" class="pace_chart"></svg>
 
 <script>
-    //            group.append("rect").attr("x", 0).attr("y", 0).attr("width", 10).attr("height", 10);
     var t = function(x, y) {
         return 'translate(' + x + ',' + y + ')';
     };
 
+    var g = function(chart, x, y) {
+        return chart.append('g').attr('transform', t(x, y));
+    };
+
     var createYAxis = function(options, chart, placement) {
         var x = 'right' == placement ? options.width - options.yAxisAreaWidth : 0,
-            y = 0;
-
-        var group = chart.append('g').attr('transform', t(x, y));
+            group = g(chart, x, 0);
 
         options.paceRange.forEach(function(pace) {
             group.append('text')
@@ -38,10 +39,7 @@
     };
 
     var createYHairlines = function(options, chart) {
-        var x = options.yAxisAreaWidth,
-            y = 0;
-
-        var group = chart.append('g').attr('transform', t(x, y));
+        var group = g(chart, options.yAxisAreaWidth, 0);
 
         options.paceRange.forEach(function(pace) {
             group.append('rect')
@@ -60,10 +58,7 @@
     };
 
     var createXMonths = function(options, chart) {
-        var x = options.yAxisAreaWidth,
-                y = options.height - options.xAxisAreaHeight;
-
-        var group = chart.append('g').attr('transform', t(x, y));
+        var group = g(chart, options.yAxisAreaWidth, options.height - options.xAxisAreaHeight);
 
         options.timestampRange.forEach(function(timestamp) {
             var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
@@ -78,10 +73,7 @@
     };
 
     var createXYears = function(options, chart) {
-        var x = options.yAxisAreaWidth,
-            y = options.height - 0.5 * options.xAxisAreaHeight;
-
-        var group = chart.append('g').attr('transform', t(x, y));
+        var group = g(chart, options.yAxisAreaWidth, options.height - 0.5 * options.xAxisAreaHeight);
 
         options.timestampRange.forEach(function(timestamp) {
             var date = new Date(1000 * timestamp);
@@ -99,11 +91,8 @@
     };
 
     var createXHairlines = function(options, chart) {
-        var x = options.yAxisAreaWidth,
-            y = 0,
+        var group = g(chart, options.yAxisAreaWidth, 0),
             offsetRatio = 0.05;
-
-        var group = chart.append('g').attr('transform', t(x, y));
 
         options.timestampRange.forEach(function(timestamp) {
             var date = new Date(1000 * timestamp);
@@ -127,23 +116,50 @@
         createXHairlines(options, chart);
     };
 
+    var createPaceCurve = function(options, chart) {
+        var group = g(chart, options.yAxisAreaWidth, 0);
+
+        var line = d3.svg.line()
+                .x(function(d) { console.log(d); return options.x(d[0]); })
+                .y(function(d) { return options.y(d[1]); })
+                .interpolate('basis');
+
+        options.periods.forEach(function(period) {
+            group.append('path')
+                    .attr('d', line(period))
+                    .attr('stroke-width', options.thicknessRatio * options.thickness)
+                    .attr('stroke', '#333')
+                    .attr('fill', 'none');
+        });
+    };
+
+    var createCurve = function(options, chart) {
+        createPaceCurve(options, chart);
+    };
+
     var options = {
         width: document.getElementById('pace_chart').offsetWidth,
         height: 500,
         xAxisAreaHeight: 50,
         yAxisAreaWidth: 100,
         thickness: 1,
+        thicknessRatio: 5,
         textHeight: 13
     };
 
     options.xAxisAreaWidth = options.width - 2 * options.yAxisAreaWidth;
     options.yAxisAreaHeight = options.height - options.xAxisAreaHeight;
 
-    options.paceRange = [ 7, 6, 5, 4, 3 ];
+    options.paceRange = [ 6, 5, 4, 3 ];
     options.timestampRange = [ 1461417778 ];
 
     for (var i = 1; i < 24; ++i) { options.timestampRange.push(options.timestampRange[0] - 2678400 * i); }
     options.timestampRange.reverse();
+
+    options.periods = [
+        [ [1399814578, 5.5], [1402492978, 5.7], [1405171378, 5.3], [1407849778, 5.25], [1410528178, 5.6], [1413206578, 5.2], [1415884978, 5.1], [1418563378, 5.1] ],
+        [ [1437312178, 5.1], [1439990578, 5.3], [1442668978, 5.0], [1445347378, 5.25], [1448025778, 5.2], [1450704178, 5.0], [1453382578, 4.9], [1456060978, 4.7], [1458739378, 4.8], [1461417778, 4.4] ]
+    ];
 
     var chart = d3
             .select('.pace_chart')
@@ -160,4 +176,5 @@
 
     createYAxes(options, chart);
     createXAxis(options, chart);
+    createCurve(options, chart);
 </script>
