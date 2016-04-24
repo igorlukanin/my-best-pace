@@ -17,6 +17,13 @@
 <svg id="pace_chart" class="pace_chart"></svg>
 
 <script>
+    var formatPace = function(pace) {
+        var minutes = Math.floor(pace),
+            seconds = Math.floor(60 * (pace - minutes));
+
+        return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    };
+
     var t = function(x, y) {
         return 'translate(' + x + ',' + y + ')';
     };
@@ -91,8 +98,7 @@
     };
 
     var createXHairlines = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, 0),
-            offsetRatio = 0.05;
+        var group = g(chart, options.yAxisAreaWidth, 0);
 
         options.timestampRange.forEach(function(timestamp) {
             var date = new Date(1000 * timestamp);
@@ -102,9 +108,9 @@
 
                 group.append('rect')
                         .attr('x', options.x(timestamp))
-                        .attr('y', options.yAxisAreaHeight * offsetRatio)
+                        .attr('y', options.yAxisAreaHeight * options.yAxisOffsetRatio)
                         .attr('width', options.thickness)
-                        .attr('height', options.yAxisAreaHeight * (1 - 2 * offsetRatio))
+                        .attr('height', options.yAxisAreaHeight * (1 - 2 * options.yAxisOffsetRatio))
                         .attr('fill', '#eee');
             }
         });
@@ -116,19 +122,57 @@
         createXHairlines(options, chart);
     };
 
+    var showXHightlight = function(node, options) {
+        d3.select(node).style({ opacity: options.highlightOpacity });
+    };
+
+    var hideXHightlight = function(node, options) {
+        d3.select(node).style({ opacity: options.hiddenOpacity });
+    };
+
+    var getVolumeOffset = function(options, d) {
+        return options.y(d[1]) - options.volumeRatio * Math.pow(1.13, d[2]);
+    };
+
+    var createHighlightArea = function(options, chart, previous, current) {
+        var group = chart.append('g')
+                .style({ opacity: options.hiddenOpacity })
+                .on('mouseover', function() { showXHightlight(this, options); })
+                .on("mouseout", function() { hideXHightlight(this, options); });
+
+        group.append('rect')
+                .attr('x', options.x(previous[0]))
+                .attr('y', options.yAxisAreaHeight * options.yAxisOffsetRatio)
+                .attr('width', options.x(current[0]) - options.x(previous[0]))
+                .attr('height', options.yAxisAreaHeight * (1 - 2 * options.yAxisOffsetRatio))
+                .attr('fill', '#f6f6f6');
+
+        group.append('text')
+                .attr('x', options.x(0.5 * previous[0] + 0.5 * current[0]))
+                .attr('y', 0.5 * getVolumeOffset(options, previous) + 0.5 * getVolumeOffset(options, current) - 1.5 * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .text(previous[2]);
+
+        group.append('text')
+                .attr('x', options.x(0.5 * previous[0] + 0.5 * current[0]))
+                .attr('y', options.y(0.5 * previous[1] + 0.5 * current[1]) + 2.5 * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .text(formatPace(previous[1]));
+    };
+
     var createVolumeArea = function(options, chart) {
         var group = g(chart, options.yAxisAreaWidth, 0);
 
         var area = d3.svg.area()
-                .x(function(d) { console.log(d); return options.x(d[0]); })
+                .x(function(d) { return options.x(d[0]); })
                 .y0(function(d) { return options.y(d[1]); })
-                .y1(function(d) { return options.y(d[1]) - options.volumeRatio * Math.pow(1.13, d[2]); })
+                .y1(function(d) { return getVolumeOffset(options, d); })
                 .interpolate('basis');
 
         options.periods.forEach(function(period) {
             group.append('path')
                     .attr('d', area(period))
-                    .attr('fill', '#ccc');
+                    .attr('fill', '#ddd');
         });
     };
 
@@ -136,7 +180,7 @@
         var group = g(chart, options.yAxisAreaWidth, 0);
 
         var line = d3.svg.line()
-                .x(function(d) { console.log(d); return options.x(d[0]); })
+                .x(function(d) { return options.x(d[0]); })
                 .y(function(d) { return options.y(d[1]); })
                 .interpolate('basis');
 
@@ -146,6 +190,14 @@
                     .attr('stroke-width', options.thicknessRatio * options.thickness)
                     .attr('stroke', '#333')
                     .attr('fill', 'none');
+
+            period.reduce(function(previous, current) {
+                if (previous != undefined) {
+                    createHighlightArea(options, group, previous, current);
+                }
+
+                return current;
+            });
         });
     };
 
@@ -159,10 +211,13 @@
         height: 500,
         xAxisAreaHeight: 50,
         yAxisAreaWidth: 100,
+        yAxisOffsetRatio: 0.05,
         thickness: 1,
         thicknessRatio: 5,
         volumeRatio: 5,
-        textHeight: 13
+        textHeight: 13,
+        hiddenOpacity: 0,
+        highlightOpacity: 0.75
     };
 
     options.xAxisAreaWidth = options.width - 2 * options.yAxisAreaWidth;
