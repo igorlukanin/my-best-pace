@@ -116,6 +116,22 @@
         createXHairlines(options, chart);
     };
 
+    var createVolumeArea = function(options, chart) {
+        var group = g(chart, options.yAxisAreaWidth, 0);
+
+        var area = d3.svg.area()
+                .x(function(d) { console.log(d); return options.x(d[0]); })
+                .y0(function(d) { return options.y(d[1]); })
+                .y1(function(d) { return options.y(d[1]) - options.volumeRatio * Math.pow(1.13, d[2]); })
+                .interpolate('basis');
+
+        options.periods.forEach(function(period) {
+            group.append('path')
+                    .attr('d', area(period))
+                    .attr('fill', '#ccc');
+        });
+    };
+
     var createPaceCurve = function(options, chart) {
         var group = g(chart, options.yAxisAreaWidth, 0);
 
@@ -134,6 +150,7 @@
     };
 
     var createCurve = function(options, chart) {
+        createVolumeArea(options, chart);
         createPaceCurve(options, chart);
     };
 
@@ -144,21 +161,22 @@
         yAxisAreaWidth: 100,
         thickness: 1,
         thicknessRatio: 5,
+        volumeRatio: 5,
         textHeight: 13
     };
 
     options.xAxisAreaWidth = options.width - 2 * options.yAxisAreaWidth;
     options.yAxisAreaHeight = options.height - options.xAxisAreaHeight;
 
-    options.paceRange = [ 6, 5, 4, 3 ];
+    options.paceRange = [ 7, 6, 5, 4, 3 ];
     options.timestampRange = [ 1461417778 ];
 
     for (var i = 1; i < 24; ++i) { options.timestampRange.push(options.timestampRange[0] - 2678400 * i); }
     options.timestampRange.reverse();
 
     options.periods = [
-        [ [1399814578, 5.5], [1402492978, 5.7], [1405171378, 5.3], [1407849778, 5.25], [1410528178, 5.6], [1413206578, 5.2], [1415884978, 5.1], [1418563378, 5.1] ],
-        [ [1437312178, 5.1], [1439990578, 5.3], [1442668978, 5.0], [1445347378, 5.25], [1448025778, 5.2], [1450704178, 5.0], [1453382578, 4.9], [1456060978, 4.7], [1458739378, 4.8], [1461417778, 4.4] ]
+        [ [1399814578, 5.5, 10], [1402492978, 5.7, 15], [1405171378, 5.3, 10], [1407849778, 5.25, 12], [1410528178, 5.6, 8], [1413206578, 5.2, 15], [1415884978, 5.1, 20], [1418563378, 5.1, 13] ],
+        [ [1437312178, 5.1, 14], [1439990578, 5.3, 22], [1442668978, 5.0, 25], [1445347378, 5.25, 15], [1448025778, 5.2, 10], [1450704178, 5.0, 23], [1453382578, 4.9, 21], [1456060978, 4.7, 17], [1458739378, 4.8, 10], [1461417778, 4.4, 6] ]
     ];
 
     var chart = d3
