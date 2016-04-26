@@ -7,10 +7,9 @@
     </div>
     <div class="header_tabs">
         <div class="header_tabs_tab">All distances</div>
-        <div class="header_tabs_tab">5K<span class="header_tabs_tab_note">19:05</span></div>
-        <div class="header_tabs_tab">10K<span class="header_tabs_tab_note">38:22</span></div>
-        <div class="header_tabs_tab">HM<span class="header_tabs_tab_note">1:37:09</span></div>
-        <div class="header_tabs_tab">M<span class="header_tabs_tab_note">3:42:17</span></div>
+        <% for @record in @records: %>
+        <div class="header_tabs_tab"><%= @record.label %><span class="header_tabs_tab_note"><%= @record.time %></span></div>
+        <% end %>
     </div>
 </div>
 
