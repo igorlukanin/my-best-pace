@@ -32,20 +32,6 @@
         return chart.append('g').attr('transform', t(x, y));
     };
 
-    var link = function(chart, text, url) {
-        return chart.append('text')
-                .text(text)
-                .on('mouseover', function() {
-                    d3.select(this).style({ cursor: 'pointer' })
-                })
-                .on('mouseout', function() {
-                    d3.select(this).style({ cursor: 'inherit' })
-                })
-                .on('click', function() {
-                    window.open(url, '_blank').focus();
-                });
-    };
-
     var createYAxis = function(options, chart, placement) {
         var x = 'right' == placement ? options.width - options.yAxisAreaWidth : 0,
             group = g(chart, x, options.awardAreaHeight),
@@ -89,9 +75,6 @@
         while (date.getTime() / 1000 <= range.max) {
             var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
                 month = date.getMonth();
-            console.log(date);
-            console.log(date.getTime() / 1000);
-            console.log(range.max);
 
             group.append('text')
                     .attr('x', options.x(date.getTime() / 1000))
@@ -198,12 +181,6 @@
                 .attr('y', options.y(period.pace) + 2.5 * options.textHeight)
                 .attr('text-anchor', 'middle')
                 .text(formatPace(period.pace));
-
-        link(group, 'Runner of Spring 2016 (6th Half-Marathon Run), 182 BPM', 'https://www.strava.com/activities/540760757')
-                .attr('x', options.x(period.timestamp))
-                .attr('y', options.yAxisAreaHeight - 3 * options.textHeight)
-                .attr('text-anchor', 'middle')
-                .style({ 'text-decoration': 'underline' });
     };
 
     var createVolumeArea = function(options, chart) {

@@ -76,7 +76,7 @@ const withSameTimestamp = (points, point) => {
         const lastPoint = points[points.length - 1];
 
         if (lastPoint.timestamp == point.timestamp) {
-            lastPoint.paces.push(point.pace); // add current activity's pace
+            lastPoint.paces.push(point.pace);         // add current activity's pace
             lastPoint.distances.push(point.distance); // add current activity's distance
         }
         else {
