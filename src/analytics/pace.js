@@ -46,7 +46,7 @@ const hasReasonableActivityCount = activities => activities.length >= config.get
 
 const toCertainTimestamps = activity => {
     const date = new Date(1000 * activity.start_timestamp);
-    const firstDayOfMonth = new Date(date.getUTCFullYear(), date.getUTCMonth(), 1);
+    const firstDayOfMonth = new Date(date.getUTCFullYear(), date.getUTCMonth(), 15);
 
     activity.start_timestamp = firstDayOfMonth.getTime() / 1000;
     return activity;
@@ -125,8 +125,8 @@ const calculate = (athlete, activities) => {
             },
             timestamp: {
                 min: _.min(timestamps),
-                max: _.max(timestamps),
-                step: 60 * 60 * 24 * 30.5 // acvg. seconds in month
+                max: Math.floor(new Date().getTime() / 1000), // current date
+                step: 60 * 60 * 24 * 30.5                     // avg. seconds in month
             }
         }
     };

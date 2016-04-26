@@ -84,17 +84,22 @@
         var group = g(chart, options.yAxisAreaWidth, options.height - 0.5 * options.xAxisAreaHeight),
             range = options.data.range.timestamp;
 
-        for (var timestamp = range.min; timestamp <= range.max + options.avgMonthSeconds; timestamp += range.step) {
-            var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+        var date = new Date(1000 * range.min);
 
-            var date = new Date(1000 * timestamp),
-                month = months[date.getUTCMonth()];
+        while (date.getTime() / 1000 <= range.max) {
+            var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
+                month = date.getMonth();
+            console.log(date);
+            console.log(date.getTime() / 1000);
+            console.log(range.max);
 
             group.append('text')
-                    .attr('x', options.x(timestamp))
+                    .attr('x', options.x(date.getTime() / 1000))
                     .attr('y', options.textHeight / 2)
                     .attr('text-anchor', 'middle')
-                    .text(month);
+                    .text(months[month]);
+
+            date.setMonth(date.getMonth() + 1);
         }
     };
 
@@ -102,18 +107,20 @@
         var group = g(chart, options.yAxisAreaWidth, options.height - 0.15 * options.xAxisAreaHeight),
             range = options.data.range.timestamp;
 
-        for (var timestamp = range.min; timestamp <= range.max + options.avgMonthSeconds; timestamp += range.step) {
-            var date = new Date(1000 * timestamp);
+        var date = new Date(1000 * range.min);
 
-            if (date.getUTCMonth() == 0) {
-                var year = date.getUTCFullYear();
+        while (date.getTime() / 1000 <= range.max) {
+            if (date.getMonth() == 0) {
+                var year = date.getFullYear();
 
                 group.append('text')
-                        .attr('x', options.x(timestamp))
+                        .attr('x', options.x(date.getTime() / 1000))
                         .attr('y', options.textHeight / 2)
                         .attr('text-anchor', 'middle')
                         .text(year);
             }
+
+            date.setMonth(date.getMonth() + 1);
         }
     };
 

@@ -29,8 +29,8 @@
     "window_period_ms_description": "2 years",
     "recent_period_ms": 7776000000,
     "recent_period_ms_description": "90 days",
-    "gap_period_ms": 2678400000,
-    "gap_period_ms_description": "31 days",
+    "gap_period_ms": 3888000000,
+    "gap_period_ms_description": "45 days",
     "min_period_activity_count": 3
   }
 }
