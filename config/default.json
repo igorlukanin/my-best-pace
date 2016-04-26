@@ -21,9 +21,12 @@
     "client_secret": "",
     "access_token": "",
     "redirect_uri": "http://localhost:3000/login/strava/complete",
-    "earliest_activity_timestamp": 946684800
+    "earliest_activity_timestamp": 946684800,
+    "earliest_activity_timestamp_description": "Jan 1, 2000"
   },
   "analytics": {
+    "window_period_ms": 63072000000,
+    "window_period_ms_description": "2 years",
     "recent_period_ms": 7776000000,
     "recent_period_ms_description": "90 days",
     "gap_period_ms": 2678400000,

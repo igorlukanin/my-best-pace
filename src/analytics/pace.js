@@ -12,6 +12,12 @@ const distances = {
 };
 
 
+const isNotOutdated = activity => {
+    var period = config.get('analytics.window_period_ms');
+    return activity.start_timestamp > (new Date().getTime() - period) / 1000;
+};
+
+
 // 1 km world record is 2:11.96
 // 7+ km/h is walking, not running
 const hasReasonablePace = activity => activity.pace_m_km > 2 && activity.pace_m_km < 7;
@@ -49,12 +55,14 @@ const toCertainTimestamps = activity => {
 
 const toPoints = activity => ({
     timestamp: activity.start_timestamp,
-    pace: activity.pace_m_km
+    pace: activity.pace_m_km,
+    distance: activity.distance_km
 });
 
 
 const pushPointTo = (points, point) => {
     point.paces = [ point.pace ];
+    point.distances = [ point.distance ];
     points.push(point);
     return points;
 };
@@ -69,6 +77,7 @@ const withSameTimestamp = (points, point) => {
 
         if (lastPoint.timestamp == point.timestamp) {
             lastPoint.paces.push(point.pace); // add current activity's pace
+            lastPoint.distances.push(point.distance); // add current activity's distance
         }
         else {
             points = pushPointTo(points, point);
@@ -80,15 +89,17 @@ const withSameTimestamp = (points, point) => {
 
 
 const toPointPack = point => {
-    point.count = point.paces.length;
     point.pace = _.min(point.paces);
+    point.distance = Math.floor(_.sum(point.distances));
     delete point.paces;
+    delete point.distances;
     return point;
 };
 
 
 const calculate = (athlete, activities) => {
     activities = activities
+        .filter(isNotOutdated)
         .filter(hasReasonablePace)
         .sort(byTimestamp);
 
@@ -104,11 +115,21 @@ const calculate = (athlete, activities) => {
         paces = points.map(point => point.pace),
         timestamps = points.map(point => point.timestamp);
 
+    var avgMonthSeconds = 60 * 60 * 24 * 30.5;
+
     return {
         periods: periods,
         range: {
-            pace: [ _.min(paces), _.max(paces) ],
-            timestamp: [ _.min(timestamps), _.max(timestamps) ]
+            pace: {
+                min: Math.floor(_.min(paces)),
+                max: Math.ceil(_.max(paces)),
+                step: 0.5
+            },
+            timestamp: {
+                min: _.min(timestamps) - avgMonthSeconds / 2,
+                max: _.max(timestamps) + avgMonthSeconds / 2,
+                step: avgMonthSeconds
+            }
         }
     };
 };
