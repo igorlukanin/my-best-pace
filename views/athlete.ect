@@ -153,7 +153,7 @@
     };
 
     var getVolumeOffset = function(options, period) {
-        return options.y(period.pace) - options.volumeRatio * period.distance;
+        return options.y(period.avgPace) - options.volumeRatio * period.distance;
     };
 
     var createHighlightArea = function(options, chart, period) {
@@ -177,9 +177,9 @@
 
         group.append('text')
                 .attr('x', options.x(period.timestamp))
-                .attr('y', options.y(period.pace) + 2.5 * options.textHeight)
+                .attr('y', options.y(period.minPace) + 2.5 * options.textHeight)
                 .attr('text-anchor', 'middle')
-                .text(formatPace(period.pace));
+                .text(formatPace(period.minPace));
     };
 
     var createVolumeArea = function(options, chart) {
@@ -187,7 +187,7 @@
 
         var area = d3.svg.area()
                 .x(function(period) { return options.x(period.timestamp); })
-                .y0(function(period) { return options.y(period.pace); })
+                .y0(function(period) { return options.y(period.avgPace); })
                 .y1(function(period) { return getVolumeOffset(options, period); })
                 .interpolate('monotone');
 
@@ -198,19 +198,36 @@
         });
     };
 
-    var createPaceCurve = function(options, chart) {
+    var createAvgPaceCurve = function(options, chart) {
         var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight);
 
         var line = d3.svg.line()
                 .x(function(period) { return options.x(period.timestamp); })
-                .y(function(period) { return options.y(period.pace); })
+                .y(function(period) { return options.y(period.avgPace); })
                 .interpolate('monotone');
 
         options.data.periods.forEach(function(period) {
             group.append('path')
                     .attr('d', line(period))
                     .attr('stroke-width', options.thicknessRatio * options.thickness)
-                    .attr('stroke', '#333')
+                    .attr('stroke', '#999')
+                    .attr('fill', 'none');
+        });
+    };
+
+    var createMinPaceCurve = function(options, chart) {
+        var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight);
+
+        var line = d3.svg.line()
+                .x(function(period) { return options.x(period.timestamp); })
+                .y(function(period) { return options.y(period.minPace); })
+                .interpolate('monotone');
+
+        options.data.periods.forEach(function(period) {
+            group.append('path')
+                    .attr('d', line(period))
+                    .attr('stroke-width', options.thicknessRatio * options.thickness)
+                    .attr('stroke', '#c33')
                     .attr('fill', 'none');
 
             period.forEach(function(month) {
@@ -225,7 +242,8 @@
 
     var createCurve = function(options, chart) {
         createVolumeArea(options, chart);
-        createPaceCurve(options, chart);
+        createAvgPaceCurve(options, chart);
+        createMinPaceCurve(options, chart);
     };
 
     var options = {

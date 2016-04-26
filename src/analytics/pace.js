@@ -89,7 +89,8 @@ const withSameTimestamp = (points, point) => {
 
 
 const toPointPack = point => {
-    point.pace = _.min(point.paces);
+    point.minPace = _.min(point.paces);
+    point.avgPace = _.mean(point.paces);
     point.distance = Math.floor(_.sum(point.distances));
     delete point.paces;
     delete point.distances;
@@ -112,15 +113,16 @@ const calculate = (athlete, activities) => {
         .map(points => points.map(toPointPack));
 
     var points = _.flatten(periods),
-        paces = points.map(point => point.pace),
+        avgPaces = points.map(point => point.avgPace),
+        minPaces = points.map(point => point.minPace),
         timestamps = points.map(point => point.timestamp);
 
     return {
         periods: periods,
         range: {
             pace: {
-                min: Math.floor(_.min(paces) * 2) / 2, // round to nearest 0.5
-                max: Math.ceil(_.max(paces) * 2) / 2,  // round to nearest 0.5
+                min: Math.floor(_.min(minPaces) * 2) / 2, // round to nearest 0.5
+                max: Math.ceil(_.max(avgPaces) * 2) / 2,  // round to nearest 0.5
                 step: 0.5
             },
             timestamp: {
