@@ -46,7 +46,7 @@ const hasReasonableActivityCount = activities => activities.length >= config.get
 
 const toCertainTimestamps = activity => {
     const date = new Date(1000 * activity.start_timestamp);
-    const firstDayOfMonth = new Date(date.getUTCFullYear(), date.getUTCMonth(), 15);
+    const firstDayOfMonth = new Date(date.getUTCFullYear(), date.getUTCMonth(), 1);
 
     activity.start_timestamp = firstDayOfMonth.getTime() / 1000;
     return activity;
@@ -115,20 +115,18 @@ const calculate = (athlete, activities) => {
         paces = points.map(point => point.pace),
         timestamps = points.map(point => point.timestamp);
 
-    var avgMonthSeconds = 60 * 60 * 24 * 30.5;
-
     return {
         periods: periods,
         range: {
             pace: {
-                min: Math.floor(_.min(paces)),
-                max: Math.ceil(_.max(paces)),
+                min: Math.floor(_.min(paces) * 2) / 2, // round to nearest 0.5
+                max: Math.ceil(_.max(paces) * 2) / 2,  // round to nearest 0.5
                 step: 0.5
             },
             timestamp: {
-                min: _.min(timestamps) - avgMonthSeconds / 2,
-                max: _.max(timestamps) + avgMonthSeconds / 2,
-                step: avgMonthSeconds
+                min: _.min(timestamps),
+                max: _.max(timestamps),
+                step: 60 * 60 * 24 * 30.5 // acvg. seconds in month
             }
         }
     };
