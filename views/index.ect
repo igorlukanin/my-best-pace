@@ -4,7 +4,7 @@
 <div class="header">
     <div class="header_logo">
         <span class="header_logo_title">Pace Craze</span> of
-        <a class="header_logo_name" id="header_logo_name"></a><!--
+        <a class="header_logo_name" id="header_logo_name" target="_blank"></a><!--
         --><span class="header_logo_cursor" id="header_logo_cursor">|</span>
     </div>
     <div class="header_questions">
@@ -39,14 +39,6 @@
 </div>
 
 <script>
-    var athletes = [{
-            name: 'Igor Lukanin',
-            url: 'http://yandex.ru'
-        }, {
-            name: 'Kate Mokhova',
-            url: 'http://google.ru'
-        }];
-
     var animateCursor = function(selector, delay_ms) {
         var cursor = document.getElementById(selector),
             className = 'header_logo_cursor__hidden';
@@ -95,8 +87,10 @@
         setInterval(changeAthlete, name_delay_ms);
     };
 
-    var name = document.getElementById('header_logo_name');
+    (function() {
+        var athletes = <%- JSON.stringify(@athletes); %>;
 
-    animateCursor('header_logo_cursor', 2 * 200);
-    animateAthletes('header_logo_name', 8000, 200, athletes);
+        animateCursor('header_logo_cursor', 2 * 200);
+        animateAthletes('header_logo_name', 8000, 200, athletes);
+    })();
 </script>
