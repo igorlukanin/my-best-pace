@@ -25,8 +25,8 @@
     "earliest_activity_timestamp_description": "Jan 1, 2000"
   },
   "analytics": {
-    "window_period_ms": 63072000000,
-    "window_period_ms_description": "2 years",
+    "window_period_ms": 31536000000,
+    "window_period_ms_description": "1 year",
     "recent_period_ms": 7776000000,
     "recent_period_ms_description": "90 days",
     "gap_period_ms": 3888000000,

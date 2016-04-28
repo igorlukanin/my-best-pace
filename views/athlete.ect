@@ -1,17 +1,17 @@
 <% extend 'layouts/default.ect' %>
 
-<div class="header">
-    <div class="header_logo">
-        <span class="header_logo_title">Pace Craze</span> of
-        <span class="header_logo_name"><%= @athlete.full_name %></span>
-    </div>
-    <div class="header_tabs">
-        <div class="header_tabs_tab">All distances</div>
-        <% for @record in @records: %>
-        <div class="header_tabs_tab"><%= @record.label %><span class="header_tabs_tab_note"><%= @record.time %></span></div>
-        <% end %>
-    </div>
-</div>
+<!--<div class="header">-->
+    <!--<div class="header_logo">-->
+        <!--<span class="header_logo_title">Pace Craze</span> of-->
+        <!--<span class="header_logo_name"><%= @athlete.full_name %></span>-->
+    <!--</div>-->
+    <!--<div class="header_tabs">-->
+        <!--<div class="header_tabs_tab">All distances</div>-->
+        <!--<% for @record in @records: %>-->
+        <!--<div class="header_tabs_tab"><%= @record.label %><span class="header_tabs_tab_note"><%= @record.time %></span></div>-->
+        <!--<% end %>-->
+    <!--</div>-->
+<!--</div>-->
 
 <svg id="pace_chart" class="pace_chart"></svg>
 
@@ -46,30 +46,29 @@
     };
 
     var createYHairlines = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight),
+        var group = g(chart, 0, options.awardAreaHeight),
             range = options.data.range.pace;
 
         for (var pace = range.min; pace <= range.max; pace += range.step) {
             group.append('rect')
                     .attr('x', 0)
                     .attr('y', options.y(pace))
-                    .attr('width', options.xAxisAreaWidth)
+                    .attr('width', options.width)
                     .attr('height', options.thickness)
                     .attr('fill', '#eee');
         }
     };
 
     var createYAxes = function(options, chart) {
-        createYAxis(options, chart, 'left');
         createYAxis(options, chart, 'right');
-        createYHairlines(options, chart);
     };
 
     var createXMonths = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.height - 0.5 * options.xAxisAreaHeight),
+        var group = g(chart, 0, options.height - 0.75 * options.xAxisAreaHeight),
             range = options.data.range.timestamp;
 
         var date = new Date(1000 * range.min);
+        date.setMonth(date.getMonth() + 1);
 
         while (date.getTime() / 1000 <= range.max) {
             var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
@@ -86,7 +85,7 @@
     };
 
     var createXYears = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.height - 0.15 * options.xAxisAreaHeight),
+        var group = g(chart, 0, options.height - 0.4 * options.xAxisAreaHeight),
             range = options.data.range.timestamp;
 
         var date = new Date(1000 * range.min);
@@ -107,7 +106,7 @@
     };
 
     var createXHairlines = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight),
+        var group = g(chart, 0, options.awardAreaHeight),
             range = options.data.range.timestamp;
 
         for (var timestamp = range.min; timestamp <= range.max; timestamp += range.step) {
@@ -129,15 +128,14 @@
     var createXAxis = function(options, chart) {
         createXMonths(options, chart);
         createXYears(options, chart);
-        createXHairlines(options, chart);
     };
 
     var showXHightlight = function(options, node) {
-        d3.select(node).style({ opacity: options.highlightOpacity });
+        d3.select(node).attr('class', 'highlight_area');
     };
 
     var hideXHightlight = function(options, node) {
-        d3.select(node).style({opacity: options.hiddenOpacity});
+        d3.select(node).attr('class', 'highlight_area highlight_area__hidden');
     };
 
     var createAwards = function(options, chart, period) {
@@ -153,12 +151,12 @@
     };
 
     var getVolumeOffset = function(options, period) {
-        return options.y(period.avgPace) - options.volumeRatio * period.distance;
+        return options.y(period.avgPace) - options.awardAreaHeight * period.distance / options.data.range.distance.max;
     };
 
     var createHighlightArea = function(options, chart, period) {
         var group = chart.append('g')
-                .style({ opacity: options.hiddenOpacity })
+                .attr('class', 'highlight_area highlight_area__hidden')
                 .on('mouseover', function() { showXHightlight(options, this); })
                 .on("mouseout", function() { hideXHightlight(options, this); });
 
@@ -166,8 +164,7 @@
                 .attr('x', options.x(period.timestamp - 0.5 * options.data.range.timestamp.step))
                 .attr('y', 0)
                 .attr('width', options.x(period.timestamp + 0.5 * options.data.range.timestamp.step) - options.x(period.timestamp - 0.5 * options.data.range.timestamp.step))
-                .attr('height', options.yAxisAreaHeight)
-                .attr('fill', '#f6f6f6');
+                .attr('height', options.height);
 
         group.append('text')
                 .attr('x', options.x(period.timestamp))
@@ -175,15 +172,55 @@
                 .attr('text-anchor', 'middle')
                 .text(period.distance);
 
+        // avg
+
         group.append('text')
                 .attr('x', options.x(period.timestamp))
-                .attr('y', options.y(period.minPace) + 2.5 * options.textHeight)
+                .attr('y', options.y(period.avgPace) + options.awardAreaHeight + (1.5 - 5.5) * options.textHeight)
                 .attr('text-anchor', 'middle')
+                .attr('class', 'avg_pace_label')
+                .text('avg');
+
+        group.append('text')
+                .attr('x', options.x(period.timestamp))
+                .attr('y', options.y(period.avgPace) + options.awardAreaHeight + (3.25 - 5.5) * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'avg_pace_value')
+                .text(formatPace(period.avgPace));
+
+        group.append('text')
+                .attr('x', options.x(period.timestamp))
+                .attr('y', options.y(period.avgPace) + options.awardAreaHeight + (4.5 - 5.5) * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'avg_pace_label')
+                .text('m / km');
+
+        // min
+
+        group.append('text')
+                .attr('x', options.x(period.timestamp))
+                .attr('y', options.y(period.minPace) + options.awardAreaHeight + 1.5 * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'min_pace_label')
+                .text('min');
+
+        group.append('text')
+                .attr('x', options.x(period.timestamp))
+                .attr('y', options.y(period.minPace) + options.awardAreaHeight + 3.25 * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'min_pace_value')
                 .text(formatPace(period.minPace));
+
+        group.append('text')
+                .attr('x', options.x(period.timestamp))
+                .attr('y', options.y(period.minPace) + options.awardAreaHeight + 4.5 * options.textHeight)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'min_pace_label')
+                .text('m / km');
     };
 
     var createVolumeArea = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight);
+        var group = g(chart, 0, options.awardAreaHeight);
 
         var area = d3.svg.area()
                 .x(function(period) { return options.x(period.timestamp); })
@@ -194,12 +231,12 @@
         options.data.periods.forEach(function(period) {
             group.append('path')
                     .attr('d', area(period))
-                    .attr('fill', '#ddd');
+                    .attr('class', 'volume_area');
         });
     };
 
     var createAvgPaceCurve = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight);
+        var group = g(chart, 0, options.awardAreaHeight);
 
         var line = d3.svg.line()
                 .x(function(period) { return options.x(period.timestamp); })
@@ -209,14 +246,13 @@
         options.data.periods.forEach(function(period) {
             group.append('path')
                     .attr('d', line(period))
-                    .attr('stroke-width', options.thicknessRatio * options.thickness)
-                    .attr('stroke', '#999')
+                    .attr('class', 'avg_pace')
                     .attr('fill', 'none');
         });
     };
 
     var createMinPaceCurve = function(options, chart) {
-        var group = g(chart, options.yAxisAreaWidth, options.awardAreaHeight);
+        var group = g(chart, 0, options.awardAreaHeight);
 
         var line = d3.svg.line()
                 .x(function(period) { return options.x(period.timestamp); })
@@ -226,11 +262,22 @@
         options.data.periods.forEach(function(period) {
             group.append('path')
                     .attr('d', line(period))
-                    .attr('stroke-width', options.thicknessRatio * options.thickness)
-                    .attr('stroke', '#c33')
+                    .attr('class', 'min_pace')
                     .attr('fill', 'none');
+        });
+    };
 
+    var createHighlightAreas = function(options, chart) {
+        var group = g(chart, 0, 0),
+            first = true;
+
+        options.data.periods.forEach(function(period) {
             period.forEach(function(month) {
+                if (first) {
+                    first = false;
+                    return;
+                }
+
                 createHighlightArea(options, group, month);
 
                 if (month.awards) {
@@ -244,20 +291,17 @@
         createVolumeArea(options, chart);
         createAvgPaceCurve(options, chart);
         createMinPaceCurve(options, chart);
+        createHighlightAreas(options, chart);
     };
 
     var options = {
         width: document.getElementById('pace_chart').offsetWidth,
         height: 500,
         xAxisAreaHeight: 75,
-        yAxisAreaWidth: 100,
-        awardAreaHeight: 50,
+        yAxisAreaWidth: 75,
+        awardAreaHeight: 100,
         thickness: 1,
-        thicknessRatio: 5,
-        volumeRatio: 0.5,
         textHeight: 13,
-        hiddenOpacity: 0,
-        highlightOpacity: 0.75,
         awardSize: 30,
         avgMonthSeconds: 60 * 60 * 24 * 30.5
     };
@@ -273,9 +317,9 @@
             .attr('height', options.height);
 
     options.x = d3.scale.linear()
-            .range([ 0, options.xAxisAreaWidth ])
+            .range([ 0, options.width ])
             .domain([
-                options.data.range.timestamp.min - options.avgMonthSeconds / 2,
+                options.data.range.timestamp.min,
                 options.data.range.timestamp.max + options.avgMonthSeconds / 2
             ]);
 
@@ -283,7 +327,9 @@
             .range([ options.height - options.awardAreaHeight - options.xAxisAreaHeight, 0 ])
             .domain([ options.data.range.pace.min, options.data.range.pace.max ]);
 
+    createYHairlines(options, chart);
+    createXHairlines(options, chart);
+    createCurve(options, chart);
     createYAxes(options, chart);
     createXAxis(options, chart);
-    createCurve(options, chart);
 </script>

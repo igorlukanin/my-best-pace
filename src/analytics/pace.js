@@ -115,7 +115,8 @@ const calculate = (athlete, activities) => {
     var points = _.flatten(periods),
         avgPaces = points.map(point => point.avgPace),
         minPaces = points.map(point => point.minPace),
-        timestamps = points.map(point => point.timestamp);
+        timestamps = points.map(point => point.timestamp),
+        distances = points.map(point => point.distance);
 
     return {
         periods: periods,
@@ -129,6 +130,9 @@ const calculate = (athlete, activities) => {
                 min: _.min(timestamps),
                 max: Math.floor(new Date().getTime() / 1000), // current date
                 step: 60 * 60 * 24 * 30.5                     // avg. seconds in month
+            },
+            distance: {
+                max: _.max(distances)
             }
         }
     };

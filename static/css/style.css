@@ -108,3 +108,48 @@ a {
 .pace_chart {
     width: 100%;
 }
+
+.highlight_area {
+    opacity: 1;
+    fill: rgba(245, 245, 245, 0.5);
+    transition: opacity 250ms;
+}
+
+.highlight_area__hidden {
+    opacity: 0;
+    transition: opacity 250ms;
+}
+
+.volume_area {
+    fill: #eef;
+}
+
+.avg_pace {
+    fill: none;
+    stroke: rgb(0, 68, 221);
+    stroke-width: 2px;
+}
+
+.avg_pace_label {
+    fill: rgb(0, 68, 221);
+    font-size: 0.9em;
+}
+
+.avg_pace_value {
+    fill: rgb(0, 68, 221);
+}
+
+.min_pace {
+    fill: none;
+    stroke: #f66;
+    stroke-width: 2px;
+}
+
+.min_pace_label {
+    fill: #f66;
+    font-size: 0.9em;
+}
+
+.min_pace_value {
+    fill: #f66;
+}
