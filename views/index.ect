@@ -2,32 +2,101 @@
 
 
 <div class="header">
-    <div class="header_logo_title">What's your running pace?</div>
-    <div class="header_subtitle">Do you run slower or faster over time?</div>
-    <div class="header_cta">Connect with your favourite app to know:</div>
-</div>
-
-<div class="login grid">
-    <div class="login_block login_block__strava col-1-4">
-        <a class="login_link" href="/login/strava">
-            <span class="login_link_filler">Strava</span>
-        </a>
+    <div class="header_logo">
+        <span class="header_logo_title">Pace Craze</span> of
+        <a class="header_logo_name" id="header_logo_name"></a><!--
+        --><span class="header_logo_cursor" id="header_logo_cursor">|</span>
     </div>
-    <div class="login_block login_block__runkeeper col-1-4">
-        <a class="login_link" href="/login/runkeeper">
-            <span class="login_link_filler">Runkeeper</span>
-        </a>
-    </div>
-    <div class="login_block login_block__nikeplus login_block__coming_soon col-1-4">
-        <a class="login_link login_link__coming_soon">Nike+</a>
-        <div class="login_note">Coming soon</div>
-    </div>
-    <div class="login_block login_block__garmin login_block__coming_soon col-1-4">
-        <a class="login_link login_link__coming_soon">Garmin</a>
-        <div class="login_note">Coming soon</div>
+    <div class="header_questions">
+        Do you run slower or faster over time?<br/>
+        Connect with your favorite app to know
     </div>
 </div>
 
-<% for athlete in @athletes : %>
-<p><a href="/athletes/<%= athlete.id %>"><%= athlete.full_name %> @ <%= athlete.service %></a></p>
-<% end %>
+<div class="login">
+    <div class="pure-g">
+        <div class="pure-u-1-2">
+            <div class="login_button login_button__runkeeper">
+                <a class="login_link" href="/login/runkeeper">
+                    Connect with
+                    <span class="login_link_name">Runkeeper</span>
+                </a>
+            </div>
+        </div>
+        <div class="pure-u-1-2">
+            <div class="login_button login_button__strava">
+                <a class="login_link" href="/login/strava">
+                    Connect with
+                    <span class="login_link_name">Strava</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        Created by <a href="http://igor.lukanin.name" target="_blank">Igor Lukanin</a>. Design by <a href="https://twitter.com/katemokhova" target="_blank">Kate Mokhova</a>.<br/>
+        It's open source&thinsp;—&thinsp;have a look at <a href="https://github.com/igorlukanin/pace-craze" target="_blank">Github</a>.
+    </div>
+</div>
+
+<script>
+    var athletes = [{
+            name: 'Igor Lukanin',
+            url: 'http://yandex.ru'
+        }, {
+            name: 'Kate Mokhova',
+            url: 'http://google.ru'
+        }];
+
+    var animateCursor = function(selector, delay_ms) {
+        var cursor = document.getElementById(selector),
+            className = 'header_logo_cursor__hidden';
+
+        setInterval(function() {
+            if (cursor.classList.contains(className)) {
+                cursor.classList.remove(className);
+            }
+            else {
+                cursor.classList.add(className);
+            }
+        }, delay_ms);
+    };
+
+    var randomizeDelay = function(delay, ratio) {
+        var delta = Math.random() * delay * ratio;
+
+        return ratio + delta * (Math.random() > 0.5 ? 1 : -1);
+    };
+
+    var changeAthleteLink = function(selector, delay_ms, athlete) {
+        var link = document.getElementById(selector);
+
+        link.innerText = '';
+        link.href = athlete.url;
+
+        for (var i = 0; i < athlete.name.length; ++i) {
+            var delay = randomizeDelay(delay_ms, 0.5);
+
+            (function(letter) {
+                setTimeout(function () {
+                    link.innerText += letter;
+                }, (4 + i) * delay_ms + delay);
+            })(athlete.name[i]);
+        }
+    };
+
+    var animateAthletes = function(selector, name_delay_ms, letter_delay_ms, athletes) {
+        var changeAthlete = function() {
+            var athlete = athletes[Math.floor(Math.random() * athletes.length)];
+
+            changeAthleteLink(selector, letter_delay_ms, athlete);
+        };
+
+        changeAthlete();
+        setInterval(changeAthlete, name_delay_ms);
+    };
+
+    var name = document.getElementById('header_logo_name');
+
+    animateCursor('header_logo_cursor', 2 * 200);
+    animateAthletes('header_logo_name', 8000, 200, athletes);
+</script>

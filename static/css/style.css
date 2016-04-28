@@ -1,31 +1,46 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:600,400,300);
+@import url(https://fonts.googleapis.com/css?family=Lato:900,600,400,300);
 
 body {
     color: #333;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 12pt;
+    font-family: Lato, Helvetica, Arial, sans-serif;
+    font-size: 15px;
     font-weight: 300;
     margin: 2em 0;
 }
 
+a {
+    border-bottom: solid 1px rgba(0, 68, 221, 0.2);
+    color: rgb(0, 68, 221);
+    text-decoration: inherit;
+}
+
 .header {
-    border-bottom: solid 1px #eee;
+    margin-top: 8em;
     margin-bottom: 2em;
     padding: .75em 1.25em;
     text-align: center;
 }
 
 .header_logo {
-    display: inline-block;
+    font-size: 60px;
 }
 
-.header_logo_title, .header_logo_name {
-    font-weight: 400;
+.header_logo_cursor {
+    font-size: 1.1em;
+    position: relative;
+    top: -0.05em;
+    opacity: 1;
+    transition: opacity 200ms;
+}
+
+.header_logo_cursor__hidden {
+    opacity: 0;
+    transition: opacity 200ms;
 }
 
 .header_tabs {
-    display: inline-block;
-    font-weight: 600;
+    font-size: 30pt;
+    margin-top: 0.5em;
 }
 
 .header_tabs_tab {
@@ -34,8 +49,60 @@ body {
 }
 
 .header_tabs_tab_note {
-    font-weight: 300;
+    font-weight: 600;
     margin-left: .5em;
+}
+
+.header_questions {
+    font-size: 30px;
+    line-height: 1.5em;
+    margin-top: 3em;
+}
+
+.login {
+    margin: 2.5em auto auto;
+    width: 50%;
+}
+
+.login_button {
+    font-size: 25px;
+    padding: 1em;
+}
+
+.login_button__runkeeper {
+    background: rgba(54, 190, 202, 0.75);
+    transition: background 1s;
+}
+
+.login_button__runkeeper:hover {
+    background: rgba(54, 190, 202, 1.0);
+    transition: background 1s;
+}
+
+.login_button__strava {
+    background: rgba(250, 78, 31, 0.75);
+    transition: background 1s;
+}
+
+.login_button__strava:hover {
+    background: rgba(250, 78, 31, 1.0);
+    transition: background 1s;
+}
+
+.login_link {
+    border: none;
+    color: #fff;
+}
+
+.login_link_name {
+    display: block;
+    font-size: 45px;
+}
+
+.footer {
+    line-height: 1.75em;
+    margin-top: 10em;
+    text-align: center;
 }
 
 .pace_chart {
