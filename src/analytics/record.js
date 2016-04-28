@@ -2,21 +2,17 @@
 
 const _ = require('lodash');
 const config = require('config');
+const util = require('./util');
 
 
-const distances = [
-    { name: '5K',  min: 2.5,  real: 5.0,    max: 7.5 },
-    { name: '10K', min: 7.5,  real: 10.0,   max: 15.0 },
-    { name: 'HM', min: 15.0, real: 21.095, max: 32.5 },
-    { name: 'M',  min: 35.0, real: 42.190, max: Infinity }
-];
+const realRatio = 0.9;
 
 
 const getStrictDistanceLabel = (activity) => {
     var label = undefined;
 
-    distances.forEach(function(distance) {
-        if (activity.distance_km >= distance.real && activity.distance_km < distance.max) {
+    util.distances.forEach(function(distance) {
+        if (activity.distance_km >= distance.real * realRatio && activity.distance_km < distance.max) {
             label = distance.name;
         }
     });
@@ -62,13 +58,21 @@ const calculate = (activities) => {
         .filter(hasReasonablePace)
         .reduce(asRecords, {});
 
-    return _.sortBy(Object
+    records = _.sortBy(Object
         .keys(records)
         .map((label) => ({
+            id: label,
             label: label,
             time: formatPace(records[label]),
             time_m: records[label]
         })), 'time_m');
+
+    return [{
+        id: 'all',
+        label: 'All',
+        time: '0',
+        time_m: 0
+    }].concat(records);
 };
 
 

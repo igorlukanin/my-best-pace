@@ -2,14 +2,7 @@
 
 const _ = require('lodash');
 const config = require('config');
-
-
-const distances = {
-    '5': [2.5, 7.5],
-    '10': [7.5, 15.0],
-    'HM': [15.0, 32.5],
-    'M': [35.0, Infinity]
-};
+const util = require('./util');
 
 
 const isNotOutdated = activity => {
@@ -98,8 +91,9 @@ const toPointPack = point => {
 };
 
 
-const calculate = (athlete, activities) => {
+const calculateWithDistanceFilter = (athlete, activities, byDistance) => {
     activities = activities
+        .filter(byDistance)
         .filter(isNotOutdated)
         .filter(hasReasonablePace)
         .sort(byTimestamp);
@@ -139,6 +133,25 @@ const calculate = (athlete, activities) => {
 };
 
 
+const calculate = (athlete, activities) => {
+    var data = {
+        all: calculateWithDistanceFilter(athlete, activities, (activity) => true)
+    };
+    
+    for (var i in util.distances) {
+        var distance = util.distances[i],
+            filter = (activity) => activity.distance_km >= distance.min && activity.distance_km < distance.max,
+            datum = calculateWithDistanceFilter(athlete, activities, filter);
+     
+        if (datum.periods.length > 0) {
+            data[distance.name] = datum;
+        }
+    }
+    
+    return data;
+};
+
+
 module.exports = {
-    allTime: calculate
+    calculate: calculate
 };

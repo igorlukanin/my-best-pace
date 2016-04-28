@@ -21,6 +21,10 @@ a {
     text-align: center;
 }
 
+.header__profile {
+    margin-top: 4em;
+}
+
 .header_logo {
     font-size: 60px;
 }
@@ -38,19 +42,31 @@ a {
     transition: opacity 200ms;
 }
 
-.header_tabs {
-    font-size: 30pt;
-    margin-top: 0.5em;
+.tabs {
+    text-align: center;
+    margin-bottom: 2em;
 }
 
-.header_tabs_tab {
-    display: inline;
-    margin-left: 2em;
+.tabs_tab {
+    display: inline-block;
+    vertical-align: top;
+    width: 225px;
 }
 
-.header_tabs_tab_note {
-    font-weight: 600;
-    margin-left: .5em;
+.tabs_tab_label {
+    font-size: 30px;
+}
+
+.tabs_tab_note {
+    color: #999;
+    font-size: 20px;
+    margin-top: 0.25em;
+}
+
+.tabs_tab_chart {
+    margin-top: 1em;
+    width: 175px;
+    height: 50px;
 }
 
 .header_questions {
@@ -65,8 +81,9 @@ a {
 }
 
 .login_button {
-    font-size: 25px;
-    padding: 1em;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    padding: 1.5em;
 }
 
 .login_button__runkeeper {
@@ -92,11 +109,14 @@ a {
 .login_link {
     border: none;
     color: #fff;
+    text-transform: uppercase;
 }
 
 .login_link_name {
     display: block;
     font-size: 45px;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 .footer {
@@ -131,7 +151,7 @@ a {
 }
 
 .avg_pace_label {
-    fill: rgb(0, 68, 221);
+    fill: #999;
     font-size: 0.9em;
 }
 
@@ -146,10 +166,28 @@ a {
 }
 
 .min_pace_label {
-    fill: #f66;
+    fill: #999;
     font-size: 0.9em;
 }
 
 .min_pace_value {
     fill: #f66;
+}
+
+.x_hairline {
+    fill: #eee;
+    width: 1px;
+}
+
+.y_hairline {
+    fill: #eee;
+    height: 1px;
+}
+
+.pace_chart__simple .avg_pace {
+    stroke-width: 1px;
+}
+
+.pace_chart__simple .min_pace {
+    stroke-width: 1px;
 }

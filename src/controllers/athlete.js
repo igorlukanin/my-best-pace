@@ -28,7 +28,7 @@ router.get('/:id', (req, res) => {
                 allTime: dayAnalytics.allTime(activityInfos),
                 recent: dayAnalytics.recent(activityInfos)
             },
-            pace: paceAnalytics.allTime(athleteInfo, activityInfos),
+            pace: paceAnalytics.calculate(athleteInfo, activityInfos),
             records: recordAnalytics.calculate(activityInfos)
         }));
         // .catch((err) => res.render('errors/athlete', { err: err }));
