@@ -18,6 +18,16 @@
         <svg id="pace_chart_<%= @record.id %>" class="pace_chart_<%= @record.id %> pace_chart__simple tabs_tab_chart" onclick="switchChart('<%= @record.id %>');"></svg>
     </div>
     <% end %>
+    <div class="tabs_tab">
+        <div class="tabs_tab_label">Hours</div>
+        <div class="tabs_tab_note">every day</div>
+        <svg id="hours_chart" class="hours_chart tabs_tab_chart tabs_tab_chart__big"></svg>
+    </div>
+    <div class="tabs_tab">
+        <div class="tabs_tab_label">Days</div>
+        <div class="tabs_tab_note">every week</div>
+        <svg id="days_chart" class="days_chart tabs_tab_chart tabs_tab_chart__big"></svg>
+    </div>
 </div>
 
 <svg id="pace_chart" class="pace_chart"></svg>
@@ -397,20 +407,130 @@
                 .remove();
     };
 
+    var drawHourChart = function(selector) {
+        var hourData = <%- JSON.stringify(@hours); %>;
+
+        var width = 100,
+                height = width,
+                centerX = width / 2,
+                centerY = height / 2,
+                innerRadius = width / 4,
+                outerRadius = width / 2,
+                thickness = 1;
+
+        var innerArc = d3.svg.arc()
+                .innerRadius(innerRadius - thickness)
+                .outerRadius(innerRadius)
+                .startAngle(0)
+                .endAngle(2 * Math.PI);
+
+        var chart = d3
+                .select('.' + selector)
+                .attr('width', width)
+                .attr('height', height)
+                .append("g")
+                .attr("transform", "translate(" + centerX + "," + centerY + ")");
+
+        chart.append("path").attr("d", innerArc);
+
+        var getOuterDot = function(d, i, max) {
+            var radius = innerRadius + (outerRadius - innerRadius) * d[i] / max;
+            var angle = 2 * Math.PI / d.length * i + Math.PI / d.length - Math.PI / 2;
+
+            return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+        };
+
+        var line = d3.svg.line()
+                .x(function(d) { return d.x; })
+                .y(function(d) { return d.y; })
+                .interpolate("basis-closed");
+
+
+        var drawHourCurve = function(data, color) {
+            var max = data.reduce(function(max, value) { return max > value ? max : value; }, Number.MIN_VALUE);
+            var lineData = data.map(function(d, i) { return getOuterDot(data, i, max); });
+
+            chart.append("path")
+                    .attr("d", line(lineData))
+                    .attr("stroke-width", 2)
+                    .attr("stroke", color)
+                    .attr("fill", "none");
+        };
+
+        drawHourCurve(hourData.allTime, "pink");
+        drawHourCurve(hourData.recent, "red");
+    };
+
+    var drawDayChart = function(selector) {
+        var dayData = <%- JSON.stringify(@days); %>;
+
+        var width = 100,
+                height = width,
+                centerX = width / 2,
+                centerY = height / 2,
+                innerRadius = width / 4,
+                outerRadius = width / 2,
+                thickness = 1;
+
+        var innerArc = d3.svg.arc()
+                .innerRadius(innerRadius - thickness)
+                .outerRadius(innerRadius)
+                .startAngle(0)
+                .endAngle(2 * Math.PI);
+
+        var chart = d3
+                .select('.' + selector)
+                .attr('width', width)
+                .attr('height', height)
+                .append("g")
+                .attr("transform", "translate(" + centerX + "," + centerY + ")");
+
+        chart.append("path").attr("d", innerArc);
+
+        var getOuterDot = function(d, i, max) {
+            var radius = innerRadius + (outerRadius - innerRadius) * d[i] / max;
+            var angle = 2 * Math.PI / d.length * i + Math.PI / d.length - Math.PI / 2;
+
+            return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+        };
+
+        var line = d3.svg.line()
+                .x(function(d) { return d.x; })
+                .y(function(d) { return d.y; })
+                .interpolate("basis-closed");
+
+
+        var drawHourCurve = function(data, color) {
+            var max = data.reduce(function(max, value) { return max > value ? max : value; }, Number.MIN_VALUE);
+            var lineData = data.map(function(d, i) { return getOuterDot(data, i, max); });
+
+            chart.append("path")
+                    .attr("d", line(lineData))
+                    .attr("stroke-width", 2)
+                    .attr("stroke", color)
+                    .attr("fill", "none");
+        };
+
+        drawHourCurve(dayData.allTime, "lightblue");
+        drawHourCurve(dayData.recent, "blue");
+    };
+
     (function() {
         var data = <%- JSON.stringify(@pace); %>;
 
         <% for @record in @records: %>
         if (data['<%= @record.id %>'] != undefined && data['<%= @record.id %>'].periods.length > 0) {
             createChart('pace_chart_<%= @record.id %>', data['<%= @record.id %>'], {
-                width: 175,
-                height: 50,
+                width: 150,
+                height: 75,
                 simple: true
             });
         }
         <% end %>
 
         createChart('pace_chart', data.all);
+        drawHourChart('hours_chart');
+        drawDayChart('days_chart');
 
         window.switchChart = function(id) {
             hideChart('pace_chart');
