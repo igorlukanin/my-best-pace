@@ -15,7 +15,7 @@
             <% if @record.id == 'all': %>&nbsp;<% end %>
             <% if @record.id != 'all': %><%= @record.time %><% end %>
         </div>
-        <svg id="pace_chart_<%= @record.id %>" class="pace_chart_<%= @record.id %> pace_chart__simple tabs_tab_chart"></svg>
+        <svg id="pace_chart_<%= @record.id %>" class="pace_chart_<%= @record.id %> pace_chart__simple tabs_tab_chart" onclick="switchChart('<%= @record.id %>');"></svg>
     </div>
     <% end %>
 </div>
@@ -48,7 +48,10 @@
                     .attr('x', options.yAxisAreaWidth / 2)
                     .attr('y', options.y(pace) + options.textHeight / 2)
                     .attr('text-anchor', 'middle')
-                    .text(formatPace(pace));
+                    .text(formatPace(pace))
+                    .style('opacity', 0)
+                    .transition()
+                    .style('opacity', 1);
         }
     };
 
@@ -233,10 +236,20 @@
                 .y1(function(period) { return getVolumeOffset(options, period); })
                 .interpolate('monotone');
 
+        var area2 = d3.svg.area()
+                .x(function(period) { return options.x(period.timestamp); })
+                .y0(function(period) { return options.y(period.avgPace); })
+                .y1(function(period) { return options.y(period.avgPace); })
+                .interpolate('monotone');
+
         options.data.periods.forEach(function(period) {
             group.append('path')
-                    .attr('d', area(period))
-                    .attr('class', 'volume_area');
+                    .attr('d', area2(period))
+                    .attr('class', 'volume_area')
+                    .style('opacity', 0)
+                    .transition()
+                    .style('opacity', 1)
+                    .attr('d', area(period));
         });
     };
 
@@ -252,7 +265,10 @@
             group.append('path')
                     .attr('d', line(period))
                     .attr('class', 'avg_pace')
-                    .attr('fill', 'none');
+                    .attr('fill', 'none')
+                    .style('opacity', 0)
+                    .transition()
+                    .style('opacity', 1);
         });
     };
 
@@ -264,11 +280,20 @@
                 .y(function(period) { return options.y(period.minPace); })
                 .interpolate('monotone');
 
+        var line2 = d3.svg.line()
+                .x(function(period) { return options.x(period.timestamp); })
+                .y(function(period) { return options.y(period.avgPace); })
+                .interpolate('monotone');
+
         options.data.periods.forEach(function(period) {
             group.append('path')
-                    .attr('d', line(period))
+                    .attr('d', line2(period))
                     .attr('class', 'min_pace')
-                    .attr('fill', 'none');
+                    .attr('fill', 'none')
+                    .style('opacity', 0)
+                    .transition()
+                    .style('opacity', 1)
+                    .attr('d', line(period));
         });
     };
 
@@ -319,8 +344,8 @@
         options.xAxisAreaHeightRatio = options.simple ? 0 : 0.15;
         options.xAxisAreaHeight = options.height * options.xAxisAreaHeightRatio;
 
-        options.xAxisAreaWidthRatio = options.simple ? 0 : 0.15;
-        options.yAxisAreaWidth = options.width * options.xAxisAreaWidthRatio;
+        options.yAxisAreaWidthRatio = options.simple ? 0 : 0.10;
+        options.yAxisAreaWidth = options.width * options.yAxisAreaWidthRatio;
 
         options.awardAreaHeightRatio = options.awardAreaHeightRatio || 0.2;
         options.awardAreaHeight = options.height * options.awardAreaHeightRatio;
@@ -329,13 +354,14 @@
         options.awardSize = options.awardSize || 30;
         options.avgMonthSeconds = options.avgMonthSeconds || 60 * 60 * 24 * 30.5;
 
-        options.xAxisAreaWidth = options.width - 2 * options.yAxisAreaWidth;
+        options.xAxisAreaWidth = options.width - 0 * options.yAxisAreaWidth;
         options.yAxisAreaHeight = options.height - options.awardAreaHeight - options.xAxisAreaHeight;
 
         var chart = d3
                 .select('.' + selector)
                 .attr('width', options.width)
-                .attr('height', options.height);
+                .attr('height', options.height)
+                .style('opacity', 1);
 
         options.x = d3.scale.linear()
                 .range([ 0, options.width ])
@@ -362,6 +388,15 @@
         }
     };
 
+    var hideChart = function(selector) {
+        var chart = d3
+                .select('.' + selector)
+                .transition()
+                .style('opacity', 0)
+                .selectAll('g')
+                .remove();
+    };
+
     (function() {
         var data = <%- JSON.stringify(@pace); %>;
 
@@ -376,5 +411,13 @@
         <% end %>
 
         createChart('pace_chart', data.all);
+
+        window.switchChart = function(id) {
+            hideChart('pace_chart');
+
+            setTimeout(function() {
+                createChart('pace_chart', data[id]);
+            }, 500);
+        };
     })();
 </script>

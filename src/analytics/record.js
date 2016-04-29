@@ -8,16 +8,16 @@ const util = require('./util');
 const realRatio = 0.9;
 
 
-const getStrictDistanceLabel = (activity) => {
-    var label = undefined;
+const getStrictDistance = (activity) => {
+    var d = undefined;
 
     util.distances.forEach(function(distance) {
         if (activity.distance_km >= distance.real * realRatio && activity.distance_km < distance.max) {
-            label = distance.name;
+            d = distance;
         }
     });
 
-    return label;
+    return d;
 };
 
 
@@ -33,10 +33,14 @@ const hasReasonablePace = activity => activity.pace_m_km > 2 && activity.pace_m_
 
 
 const asRecords = (records, activity) => {
-    var label = getStrictDistanceLabel(activity);
+    var distance = getStrictDistance(activity);
 
-    if (label != undefined && (records[label] > activity.time_m || records[label] == undefined)) {
-        records[label] = activity.time_m;
+    if (distance != undefined) {
+        var time = activity.time_m * distance.real / activity.distance_km;
+
+        if (records[distance.name] > time || records[distance.name] == undefined) {
+            records[distance.name] = time;
+        }
     }
 
     return records;
@@ -48,7 +52,9 @@ const formatPace = function(pace) {
         minutes = Math.floor(pace - hours * 60),
         seconds = Math.floor(60 * (pace - hours * 60 - minutes));
 
-    return (hours > 0 ? hours + ':' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    return (hours > 0 ? hours + ':' : '') +
+        (minutes < 10 ? '0' : '') + minutes + ':' +
+        (seconds < 10 ? '0' : '') + seconds;
 };
 
 
