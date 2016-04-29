@@ -146,12 +146,12 @@ a {
 }
 
 .volume_area {
-    fill: #eef;
+    fill: rgba(20, 243, 106, 0.24);
 }
 
 .avg_pace {
     fill: none;
-    stroke: rgb(0, 68, 221);
+    stroke: rgba(0, 232, 136, 0.83);
     stroke-width: 2px;
 }
 
@@ -161,12 +161,12 @@ a {
 }
 
 .avg_pace_value {
-    fill: rgb(0, 68, 221);
+    fill: rgb(0, 232, 136);
 }
 
 .min_pace {
     fill: none;
-    stroke: #f66;
+    stroke: rgba(250, 101, 31, 0.83);
     stroke-width: 2px;
 }
 
@@ -176,7 +176,7 @@ a {
 }
 
 .min_pace_value {
-    fill: #f66;
+    fill: rgb(250, 101, 31);
 }
 
 .x_hairline {
